@@ -1,0 +1,252 @@
+﻿<Window x:Class="QuranTracker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="سامانه مدیریت تکرار قرآن" Height="750" Width="1200"
+        FlowDirection="RightToLeft"
+        WindowStartupLocation="CenterScreen"
+        Background="#1B5E20" FontFamily="Segoe UI, Tahoma">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- استایل پیش‌فرض برای تمام DataGrid ها -->
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Setter Property="RowBackground" Value="#81C784"/>
+            <Setter Property="AlternatingRowBackground" Value="#A5D6A7"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="RowHeight" Value="35"/>
+            <Setter Property="ColumnHeaderHeight" Value="40"/>
+        </Style>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="F1" Command="{Binding ChangeTabCommand}" CommandParameter="Pages"/>
+        <KeyBinding Key="F2" Command="{Binding ChangeTabCommand}" CommandParameter="Juzs"/>
+        <KeyBinding Key="F3" Command="{Binding ChangeTabCommand}" CommandParameter="Juz30"/>
+        <KeyBinding Key="F4" Command="{Binding ChangeTabCommand}" CommandParameter="Khatms"/>
+        <KeyBinding Key="F5" Command="{Binding ChangeTabCommand}" CommandParameter="History"/>
+        <KeyBinding Key="F6" Command="{Binding ChangeTabCommand}" CommandParameter="Settings"/>
+        <KeyBinding Key="F12" Command="{Binding OpenEditMultipleCommand}"/>
+        <KeyBinding Key="F11" Command="{Binding OpenEditSingleCommand}"/>
+        <KeyBinding Key="Enter" Command="{Binding EnterKeyCommand}"/>
+        <KeyBinding Key="Esc" Command="{Binding EscKeyCommand}"/>
+    </Window.InputBindings>
+
+    <Grid>
+        <Grid IsEnabled="{Binding IsMainViewEnabled}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- منوی سمت راست -->
+            <StackPanel Grid.Column="0" Background="#2E7D32" Margin="10" 
+                        TextBlock.Foreground="White" TextBlock.FontSize="18">
+                <TextBlock Text="منوی اصلی" FontWeight="Bold" FontSize="22" Margin="10,20,10,30" HorizontalAlignment="Center"/>
+
+                <Button Content="صفحات [F1]" Command="{Binding ChangeTabCommand}" CommandParameter="Pages" Margin="5" Padding="12" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="جزء ها [F2]" Command="{Binding ChangeTabCommand}" CommandParameter="Juzs" Margin="5" Padding="12" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="جزء سی [F3]" Command="{Binding ChangeTabCommand}" CommandParameter="Juz30" Margin="5" Padding="12" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="ختم ها [F4]" Command="{Binding ChangeTabCommand}" CommandParameter="Khatms" Margin="5" Padding="12" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="تاریخچه [F5]" Command="{Binding ChangeTabCommand}" CommandParameter="History" Margin="5" Padding="12" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                <Button Content="تنظیمات [F6]" Command="{Binding ChangeTabCommand}" CommandParameter="Settings" Margin="5" Padding="12" Background="Transparent" Foreground="White" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
+
+            <!-- بخش نمایش تب‌ها -->
+            <TabControl Grid.Column="1" SelectedIndex="{Binding CurrentTabIndex}" Background="Transparent" BorderThickness="0" Margin="10">
+                <TabControl.ItemContainerStyle>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </Style>
+                </TabControl.ItemContainerStyle>
+
+                <!-- تب 1: صفحات -->
+                <TabItem>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+                            <TextBlock Text="ویرایش متوالی صفحات F12" Foreground="White" Margin="10,0"/>
+                        </StackPanel>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Pages}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="شماره صفحه" Binding="{Binding PageNumber}" Width="*"/>
+                                <DataGridTextColumn Header="تعداد تکرار" Binding="{Binding ReadCount}" Width="*"/>
+                                <DataGridCheckBoxColumn Header="جزء 30" Binding="{Binding IsJuz30}" Width="100"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- تب 2: جزء‌ها -->
+                <TabItem>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+                            <TextBlock Text="ویرایش متوالی جزء‌ها F12" Foreground="White" Margin="10,0"/>
+                        </StackPanel>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Juzs}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="شماره جزء" Binding="{Binding JuzNumber}" Width="*"/>
+                                <DataGridTextColumn Header="کمترین تکرار در این جزء" Binding="{Binding ReadCount}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- تب 3: جزء 30 (سوره‌ها) -->
+                <TabItem>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+                            <TextBlock Text="ویرایش متوالی سوره‌ها F12" Foreground="White" Margin="10,0"/>
+                        </StackPanel>
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Suras}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="شماره سوره" Binding="{Binding SuraNumber}" Width="100"/>
+                                <DataGridTextColumn Header="نام سوره" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="تعداد تکرار" Binding="{Binding ReadCount}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- تب 4: ختم‌ها -->
+                <TabItem>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- کارت‌های آماری بالای صفحه -->
+                        <UniformGrid Grid.Row="0" Columns="2" Margin="0,0,0,20">
+                            <!-- کارت ختم کامل -->
+                            <Border Background="#388E3C" CornerRadius="10" Margin="10" Padding="20">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="تعداد ختم کامل قرآن" Foreground="White" FontSize="20" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding FullKhatmCount}" Foreground="White" FontSize="40" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- کارت ختم تهلیل -->
+                            <Border Background="#388E3C" CornerRadius="10" Margin="10" Padding="20">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="آمار ختم تهلیل (لا اله الا الله)" Foreground="White" FontSize="20" HorizontalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
+                                        <Button Content="+" Command="{Binding IncrementTahlilCommand}" Width="40" Height="40" FontSize="24" Background="#1B5E20" Foreground="White"/>
+                                        <TextBlock Text="{Binding TahlilCount}" Foreground="White" FontSize="40" FontWeight="Bold" Margin="20,0"/>
+                                        <Button Content="-" Command="{Binding DecrementTahlilCommand}" Width="40" Height="40" FontSize="24" Background="#1B5E20" Foreground="White"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- جدول سایر ختم‌ها (یس، ملک و ...) -->
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding KhatmRecords}" Margin="10,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="نام ختم" Binding="{Binding Name}" Width="*"/>
+                                <DataGridTextColumn Header="تعداد انجام شده" Binding="{Binding Count}" Width="*"/>
+                                <DataGridTemplateColumn Header="عملیات" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="+" Command="{Binding DataContext.IncrementKhatmCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Width="35" Height="30" Margin="2" Background="#1B5E20" Foreground="White" FontSize="18"/>
+                                                <Button Content="-" Command="{Binding DataContext.DecrementKhatmCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Width="35" Height="30" Margin="2" Background="#1B5E20" Foreground="White" FontSize="18"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- تب 5: تاریخچه -->
+                <TabItem>
+                    <Grid>
+                        <TextBlock Text="تاریخچه فعالیت‌های اخیر" Foreground="White" FontSize="22" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                        <DataGrid ItemsSource="{Binding Histories}" Margin="0,40,0,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="تاریخ و زمان" Binding="{Binding PersianDate}" Width="200"/>
+                                <DataGridTextColumn Header="شرح عملیات" Binding="{Binding ActionDescription}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <!-- تب 6: تنظیمات -->
+                <TabItem>
+                    <Border Background="#2E7D32" CornerRadius="10" Padding="30" Margin="50">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="تنظیمات نرم‌افزار" Foreground="White" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+                            <TextBlock Text="نرم افزار مدیریت تکرار و ختم قرآن کریم" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,10"/>
+                            <TextBlock Text="نسخه: 1.0.0" Foreground="#A5D6A7" FontSize="16" HorizontalAlignment="Center" Margin="0,5"/>
+
+                            <Border BorderBrush="#81C784" BorderThickness="1" Margin="20,40,20,0" Padding="15">
+                                <TextBlock Text="فایل پایگاه داده (quran_tracker.db) به صورت خودکار در کنار فایل اجرایی برنامه ذخیره می‌شود. جهت گرفتن نسخه پشتیبان، این فایل را کپی کنید." 
+                                           Foreground="White" FontSize="16" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+
+            </TabControl>
+        </Grid>
+
+        <!-- پنل‌های Overlay (ویرایش متوالی) -->
+        <Grid Panel.ZIndex="100" Background="#F01B5E20" Visibility="{Binding IsEditOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Background="#2E7D32" CornerRadius="15" Width="700" Height="400" Padding="30">
+                <StackPanel>
+                    <TextBlock Text="{Binding EditTitle}" FontSize="28" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <TextBlock Text="از:" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="10,0"/>
+                        <TextBox Text="{Binding StartInput, UpdateSourceTrigger=PropertyChanged}" Width="80" FontSize="20" TextAlignment="Center"/>
+                        <TextBlock Text="تا:" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="30,0,10,0"/>
+                        <TextBox Text="{Binding EndInput, UpdateSourceTrigger=PropertyChanged}" Width="80" FontSize="20" TextAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <TextBlock Text="اضافه کردن تکرار:" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="10,0"/>
+                        <TextBox Text="{Binding AddCountInput, UpdateSourceTrigger=PropertyChanged}" Width="80" FontSize="20" TextAlignment="Center"/>
+                        <TextBlock Text="کم کردن تکرار:" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="30,0,10,0"/>
+                        <TextBox Text="{Binding SubCountInput, UpdateSourceTrigger=PropertyChanged}" Width="80" FontSize="20" TextAlignment="Center"/>
+                    </StackPanel>
+                    <Border Background="#1B5E20" CornerRadius="5" Padding="15" Margin="0,10,0,30">
+                        <TextBlock Text="{Binding InfoText}" Foreground="White" FontSize="18" TextAlignment="Center"/>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="ادامه (Enter)" Command="{Binding EnterKeyCommand}" Width="150" Height="45" FontSize="18" Margin="10"/>
+                        <Button Content="خروج (Esc)" Command="{Binding EscKeyCommand}" Width="150" Height="45" FontSize="18" Margin="10"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- پنل Overlay (تایید نهایی) -->
+        <Grid Panel.ZIndex="101" Background="#F01B5E20" Visibility="{Binding IsConfirmOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Background="#2E7D32" CornerRadius="15" Width="700" Height="300" Padding="30">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="تایید کنید که می‌خواهید تغییرات را اعمال کنید." FontSize="28" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,50"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="تایید (Enter)" Command="{Binding EnterKeyCommand}" Width="150" Height="45" FontSize="18" Margin="10"/>
+                        <Button Content="خروج (Esc)" Command="{Binding EscKeyCommand}" Width="150" Height="45" FontSize="18" Margin="10"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
