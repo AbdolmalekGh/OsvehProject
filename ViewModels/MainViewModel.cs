@@ -40,7 +40,7 @@ namespace QuranTracker.ViewModels
 
     public class MainViewModel : ObservableObject
     {
-        private readonly QuranService _quranService;
+        public readonly QuranService _quranService;
 
         public ObservableCollection<QuranPage> Pages { get; set; }
         public ObservableCollection<JuzDisplay> Juzs { get; set; }
@@ -85,48 +85,23 @@ namespace QuranTracker.ViewModels
         public SortOption SelectedSortOption
         {
             get => _selectedSortOption;
-            set
-            {
-                _selectedSortOption = value;
-                OnPropertyChanged();
-                ApplySorting();
-            }
+            set { _selectedSortOption = value; OnPropertyChanged(); ApplySorting(); }
         }
 
         private Juz30Mode _juz30CurrentMode = Juz30Mode.Suras;
         public Juz30Mode Juz30CurrentMode
         {
             get => _juz30CurrentMode;
-            set
-            {
-                _juz30CurrentMode = value;
-                OnPropertyChanged();
-                UpdateJuz30Visibilities();
-                OnPropertyChanged(nameof(IsSuraDropdownVisible));
-            }
+            set { _juz30CurrentMode = value; OnPropertyChanged(); UpdateJuz30Visibilities(); OnPropertyChanged(nameof(IsSuraDropdownVisible)); }
         }
 
         private bool _isJuz30SurasVisible = true;
-        public bool IsJuz30SurasVisible
-        {
-            get => _isJuz30SurasVisible;
-            set { _isJuz30SurasVisible = value; OnPropertyChanged(); }
-        }
+        public bool IsJuz30SurasVisible { get => _isJuz30SurasVisible; set { _isJuz30SurasVisible = value; OnPropertyChanged(); } }
 
         private bool _isJuz30PagesVisible = false;
-        public bool IsJuz30PagesVisible
-        {
-            get => _isJuz30PagesVisible;
-            set { _isJuz30PagesVisible = value; OnPropertyChanged(); }
-        }
+        public bool IsJuz30PagesVisible { get => _isJuz30PagesVisible; set { _isJuz30PagesVisible = value; OnPropertyChanged(); } }
 
         public bool IsSuraDropdownVisible => (_currentTab == AppTab.Juz30) && (_juz30CurrentMode == Juz30Mode.Suras);
-
-        private void UpdateJuz30Visibilities()
-        {
-            IsJuz30SurasVisible = (_currentTab == AppTab.Juz30) && (_juz30CurrentMode == Juz30Mode.Suras);
-            IsJuz30PagesVisible = (_currentTab == AppTab.Juz30) && (_juz30CurrentMode == Juz30Mode.Pages);
-        }
 
         private OverlayState _currentOverlay = OverlayState.None;
         public OverlayState CurrentOverlay
@@ -139,6 +114,7 @@ namespace QuranTracker.ViewModels
                 OnPropertyChanged(nameof(IsMainViewEnabled));
                 OnPropertyChanged(nameof(IsEditOverlayVisible));
                 OnPropertyChanged(nameof(IsConfirmOverlayVisible));
+                if (value != OverlayState.Edit) IsHelpListVisible = false; // بستن لیست راهنما هنگام خروج
             }
         }
 
@@ -146,43 +122,37 @@ namespace QuranTracker.ViewModels
         public bool IsEditOverlayVisible => CurrentOverlay == OverlayState.Edit;
         public bool IsConfirmOverlayVisible => CurrentOverlay == OverlayState.Confirm;
 
+        // متغیرهای لیست راهنمای F1
+        private bool _isHelpListVisible;
+        public bool IsHelpListVisible { get => _isHelpListVisible; set { _isHelpListVisible = value; OnPropertyChanged(); } }
+
+        private string _helpListTitle;
+        public string HelpListTitle { get => _helpListTitle; set { _helpListTitle = value; OnPropertyChanged(); } }
+
+        private ObservableCollection<object> _helpListItems;
+        public ObservableCollection<object> HelpListItems { get => _helpListItems; set { _helpListItems = value; OnPropertyChanged(); } }
+
         private EditMode _currentEditMode = EditMode.Single;
         public EditMode CurrentEditMode
         {
             get => _currentEditMode;
-            set
-            {
-                _currentEditMode = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsMultipleMode));
-            }
+            set { _currentEditMode = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsMultipleMode)); }
         }
 
         public bool IsMultipleMode => CurrentEditMode == EditMode.Multiple;
 
-        // انتخاب سوره با لیست کشویی
         private QuranSura _selectedStartSura;
         public QuranSura SelectedStartSura
         {
             get => _selectedStartSura;
-            set
-            {
-                _selectedStartSura = value;
-                OnPropertyChanged();
-                if (value != null && IsSuraDropdownVisible) StartInput = value.SuraNumber.ToString();
-            }
+            set { _selectedStartSura = value; OnPropertyChanged(); if (value != null && IsSuraDropdownVisible) StartInput = value.SuraNumber.ToString(); }
         }
 
         private QuranSura _selectedEndSura;
         public QuranSura SelectedEndSura
         {
             get => _selectedEndSura;
-            set
-            {
-                _selectedEndSura = value;
-                OnPropertyChanged();
-                if (value != null && IsSuraDropdownVisible) EndInput = value.SuraNumber.ToString();
-            }
+            set { _selectedEndSura = value; OnPropertyChanged(); if (value != null && IsSuraDropdownVisible) EndInput = value.SuraNumber.ToString(); }
         }
 
         private string _editTitle;
@@ -192,24 +162,14 @@ namespace QuranTracker.ViewModels
         public string StartInput
         {
             get => _startInput;
-            set
-            {
-                _startInput = value;
-                OnPropertyChanged();
-                SyncSuraFromInput(value, true);
-            }
+            set { _startInput = value; OnPropertyChanged(); SyncSuraFromInput(value, true); UpdateCurrentItemCount(); }
         }
 
         private string _endInput = "";
         public string EndInput
         {
             get => _endInput;
-            set
-            {
-                _endInput = value;
-                OnPropertyChanged();
-                SyncSuraFromInput(value, false);
-            }
+            set { _endInput = value; OnPropertyChanged(); SyncSuraFromInput(value, false); }
         }
 
         private void SyncSuraFromInput(string input, bool isStart)
@@ -224,6 +184,14 @@ namespace QuranTracker.ViewModels
                     OnPropertyChanged(isStart ? nameof(SelectedStartSura) : nameof(SelectedEndSura));
                 }
             }
+        }
+
+        private void UpdateCurrentItemCount()
+        {
+            if (int.TryParse(StartInput, out int id))
+                CurrentItemCount = _quranService.GetItemCurrentCount(_currentTab, id);
+            else
+                CurrentItemCount = 0;
         }
 
         private string _addCountInput = "";
@@ -244,6 +212,7 @@ namespace QuranTracker.ViewModels
         private int _fullQuranKhatmCount;
         public int FullQuranKhatmCount { get => _fullQuranKhatmCount; set { _fullQuranKhatmCount = value; OnPropertyChanged(); } }
 
+        public RelayCommand F1KeyCommand { get; }
         public RelayCommandWithParameter ChangeTabCommand { get; }
         public RelayCommand OpenEditMultipleCommand { get; }
         public RelayCommand OpenEditSingleCommand { get; }
@@ -252,24 +221,49 @@ namespace QuranTracker.ViewModels
         public RelayCommand EnterKeyCommand { get; }
         public RelayCommand EscKeyCommand { get; }
         public RelayCommandWithParameter EditSelectedItemCommand { get; }
-        public RelayCommandWithParameter QuickChangeKhatmCommand { get; }
 
         public MainViewModel(QuranService quranService)
         {
             _quranService = quranService ?? throw new ArgumentNullException(nameof(quranService));
-
             SelectedSortOption = SortOptions[0];
 
             ChangeTabCommand = new RelayCommandWithParameter(p => { if (IsMainViewEnabled) CurrentTabIndex = int.Parse(p.ToString()); });
             OpenEditMultipleCommand = new RelayCommand(() => OpenEdit(EditMode.Multiple));
-            OpenEditSingleCommand = new RelayCommand(() => OpenEdit(EditMode.Single));
+
+            // F1: اگر در حال ویرایش هستیم لیست راهنما را باز کن، در غیر اینصورت تب 0
+            F1KeyCommand = new RelayCommand(() =>
+            {
+                if (CurrentOverlay == OverlayState.Edit)
+                {
+                    IsHelpListVisible = !IsHelpListVisible;
+                    if (IsHelpListVisible)
+                    {
+                        if (_currentTab == AppTab.Juz30)
+                        {
+                            HelpListTitle = "لیست سوره‌های جزء ۳۰";
+                            HelpListItems = new ObservableCollection<object>(Suras.Select(s => new { کد = s.SuraNumber, نام = s.Name }));
+                        }
+                        else if (_currentTab == AppTab.Khatms)
+                        {
+                            HelpListTitle = "لیست شناسه‌های ختم";
+                            HelpListItems = new ObservableCollection<object>(KhatmRecords.Select(k => new { شناسه = k.Id, نام = k.Name }));
+                        }
+                        else
+                        {
+                            HelpListTitle = "راهنما برای این بخش وجود ندارد";
+                            HelpListItems = new ObservableCollection<object>();
+                        }
+                    }
+                }
+                else if (IsMainViewEnabled)
+                {
+                    CurrentTabIndex = 0;
+                }
+            });
 
             ToggleJuz30ModeCommand = new RelayCommand(() =>
             {
-                if (_currentTab == AppTab.Juz30)
-                {
-                    Juz30CurrentMode = Juz30CurrentMode == Juz30Mode.Suras ? Juz30Mode.Pages : Juz30Mode.Suras;
-                }
+                if (_currentTab == AppTab.Juz30) Juz30CurrentMode = Juz30CurrentMode == Juz30Mode.Suras ? Juz30Mode.Pages : Juz30Mode.Suras;
             });
 
             CycleSortCommand = new RelayCommand(() =>
@@ -281,9 +275,14 @@ namespace QuranTracker.ViewModels
             EnterKeyCommand = new RelayCommand(ExecuteEnter);
             EscKeyCommand = new RelayCommand(ExecuteEsc);
             EditSelectedItemCommand = new RelayCommandWithParameter(ExecuteEditSelected);
-            QuickChangeKhatmCommand = new RelayCommandWithParameter(ExecuteQuickChangeKhatm);
 
             LoadData();
+        }
+
+        private void UpdateJuz30Visibilities()
+        {
+            IsJuz30SurasVisible = (_currentTab == AppTab.Juz30) && (_juz30CurrentMode == Juz30Mode.Suras);
+            IsJuz30PagesVisible = (_currentTab == AppTab.Juz30) && (_juz30CurrentMode == Juz30Mode.Pages);
         }
 
         public void LoadData()
@@ -303,7 +302,6 @@ namespace QuranTracker.ViewModels
             Juzs = juzList;
 
             FullQuranKhatmCount = Pages.Any() ? Pages.Min(p => p.ReadCount) : 0;
-
             ApplySorting();
             OnPropertyChanged(string.Empty);
         }
@@ -344,14 +342,11 @@ namespace QuranTracker.ViewModels
             EndInput = ""; AddCountInput = ""; SubCountInput = ""; ErrorMessage = "";
 
             if (IsSuraDropdownVisible && prefillId.HasValue)
-            {
                 SelectedStartSura = Suras?.FirstOrDefault(s => s.SuraNumber == prefillId.Value);
-            }
 
-            CurrentItemCount = prefillId.HasValue ? _quranService.GetItemCurrentCount(_currentTab, prefillId.Value) : 0;
             EditTitle = mode == EditMode.Multiple ? $"ویرایش متوالی ({CurrentTabName})" : $"ویرایش تکی ({CurrentTabName})";
-
             CurrentOverlay = OverlayState.Edit;
+            UpdateCurrentItemCount();
         }
 
         private void ExecuteEditSelected(object param)
@@ -360,15 +355,7 @@ namespace QuranTracker.ViewModels
             else if (param is JuzDisplay j) OpenEdit(EditMode.Single, j.JuzNumber);
             else if (param is QuranSura s) OpenEdit(EditMode.Single, s.SuraNumber);
             else if (param is KhatmRecord k) OpenEdit(EditMode.Single, k.Id);
-        }
-
-        private void ExecuteQuickChangeKhatm(object param)
-        {
-            if (param is Tuple<KhatmRecord, int> tuple)
-            {
-                _quranService.UpdateKhatm(tuple.Item1.Id, tuple.Item2);
-                LoadData();
-            }
+            else if (param is int id) OpenEdit(EditMode.Single, id);
         }
 
         private void ExecuteEnter()
@@ -418,10 +405,11 @@ namespace QuranTracker.ViewModels
             if (!string.IsNullOrEmpty(AddCountInput)) int.TryParse(AddCountInput, out add);
             if (!string.IsNullOrEmpty(SubCountInput)) int.TryParse(SubCountInput, out sub);
 
-            delta = add > 0 ? add : -sub;
+            // منطق ماشین حساب داخلی (برآیند افزایش و کاهش)
+            delta = add - sub;
             if (delta == 0)
             {
-                ErrorMessage = "لطفاً تعداد اضافه یا کم کردن تکرار را وارد کنید.";
+                ErrorMessage = "لطفاً تعداد اضافه یا کم کردن تکرار را وارد کنید (برآیند صفر است).";
                 return false;
             }
 
@@ -435,21 +423,13 @@ namespace QuranTracker.ViewModels
 
             switch (_currentTab)
             {
-                case AppTab.Pages:
-                    success = _quranService.UpdatePageRange(start, end, delta, "ویرایش صفحات");
-                    break;
-                case AppTab.Juzs:
-                    success = _quranService.UpdateJuzRange(start, end, delta, "ویرایش اجزا");
-                    break;
+                case AppTab.Pages: success = _quranService.UpdatePageRange(start, end, delta, "ویرایش صفحات"); break;
+                case AppTab.Juzs: success = _quranService.UpdateJuzRange(start, end, delta, "ویرایش اجزا"); break;
                 case AppTab.Juz30:
-                    if (_juz30CurrentMode == Juz30Mode.Suras)
-                        success = _quranService.UpdateSuraRange(start, end, delta, "ویرایش سوره‌های جزء ۳۰");
-                    else
-                        success = _quranService.UpdatePageRange(start, end, delta, "ویرایش صفحات جزء ۳۰");
+                    if (_juz30CurrentMode == Juz30Mode.Suras) success = _quranService.UpdateSuraRange(start, end, delta, "ویرایش سوره‌های جزء ۳۰");
+                    else success = _quranService.UpdatePageRange(start, end, delta, "ویرایش صفحات جزء ۳۰");
                     break;
-                case AppTab.Khatms:
-                    success = _quranService.UpdateKhatm(start, delta);
-                    break;
+                case AppTab.Khatms: success = _quranService.UpdateKhatm(start, delta); break;
             }
 
             if (!success) ErrorMessage = "خطا: مقدار تکرار نمی‌تواند منفی شود.";

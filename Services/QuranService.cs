@@ -56,9 +56,9 @@ namespace QuranTracker.Services
             {
                 _db.KhatmRecords.AddRange(new List<KhatmRecord>
                 {
-                    new KhatmRecord { Id = 1, Name = "ختم قرآن", Count = 0 },
-                    new KhatmRecord { Id = 2, Name = "ختم تهلیل", Count = 0 },
-                    new KhatmRecord { Id = 3, Name = "ختم اخلاص", Count = 0 },
+                    new KhatmRecord { Id = 1, Name = "ختم کامل قرآن (اثرگذار روی کل صفحات)", Count = 0 },
+                    new KhatmRecord { Id = 2, Name = "ختم سوره اخلاص", Count = 0 },
+                    new KhatmRecord { Id = 3, Name = "ختم تهلیل", Count = 0 },
                     new KhatmRecord { Id = 4, Name = "ختم تنجینه", Count = 0 },
                     new KhatmRecord { Id = 5, Name = "ختم دلائل الخیرات", Count = 0 },
                     new KhatmRecord { Id = 6, Name = "سوره یاسین", Count = 0 },
@@ -117,7 +117,7 @@ namespace QuranTracker.Services
             var record = _db.KhatmRecords.FirstOrDefault(k => k.Id == id);
             if (record == null || (delta < 0 && record.Count + delta < 0)) return false;
 
-            // اگر ختم قرآن باشد (آیدی 1)، باید به تمام صفحات هم اضافه/کم شود
+            // فقط در صورتی که آیدی 1 (ختم کل قرآن) باشد روی صفحات تأثیر می‌گذارد
             if (id == 1)
             {
                 bool pageUpdateSuccess = UpdatePageRange(1, 604, delta, "اعمال ختم کامل قرآن");
@@ -148,20 +148,55 @@ namespace QuranTracker.Services
             };
         }
 
-        public string ExportDataToJson(string path)
+        // فیچر وارد کردن اطلاعات قبلی
+        public string ImportOldDataFromJson(string path)
         {
             try
             {
-                var export = new
+                string json = File.ReadAllText(path);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                if (root.TryGetProperty("Pages", out var pagesEl))
                 {
-                    Pages = _db.Pages.ToList(),
-                    Suras = _db.Suras.ToList(),
-                    Khatms = _db.KhatmRecords.ToList()
-                };
-                File.WriteAllText(path, JsonSerializer.Serialize(export, new JsonSerializerOptions { WriteIndented = true }));
-                return "پشتیبان‌گیری با موفقیت انجام شد.";
+                    foreach (var p in pagesEl.EnumerateArray())
+                    {
+                        if (p.TryGetProperty("PageNumber", out var numEl) && p.TryGetProperty("ReadCount", out var countEl))
+                        {
+                            var page = _db.Pages.Find(numEl.GetInt32());
+                            if (page != null) page.ReadCount = countEl.GetInt32();
+                        }
+                    }
+                }
+                if (root.TryGetProperty("Suras", out var surasEl))
+                {
+                    foreach (var s in surasEl.EnumerateArray())
+                    {
+                        if (s.TryGetProperty("SuraNumber", out var numEl) && s.TryGetProperty("ReadCount", out var countEl))
+                        {
+                            var sura = _db.Suras.Find(numEl.GetInt32());
+                            if (sura != null) sura.ReadCount = countEl.GetInt32();
+                        }
+                    }
+                }
+                if (root.TryGetProperty("Khatms", out var khatmsEl))
+                {
+                    foreach (var k in khatmsEl.EnumerateArray())
+                    {
+                        if (k.TryGetProperty("Id", out var idEl) && k.TryGetProperty("Count", out var countEl))
+                        {
+                            var khatm = _db.KhatmRecords.Find(idEl.GetInt32());
+                            if (khatm != null) khatm.Count = countEl.GetInt32();
+                        }
+                    }
+                }
+                _db.SaveChanges();
+                return "اطلاعات با موفقیت وارد و جایگزین سیستم شد.";
             }
-            catch (Exception ex) { return $"خطا در پشتیبان‌گیری: {ex.Message}"; }
+            catch (Exception ex)
+            {
+                return $"خطا در خواندن فایل: {ex.Message}";
+            }
         }
 
         private void LogHistory(string description)

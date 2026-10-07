@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 
 namespace QuranTracker.Models
@@ -48,9 +49,21 @@ namespace QuranTracker.Models
 
         private readonly string _dbPath;
 
-        public AppDbContext(string dbPath = "quran_tracker.db")
+        public AppDbContext()
         {
-            _dbPath = dbPath;
+            // انتقال محل ذخیره به پوشه مجزا
+            string baseFolder = AppDomain.CurrentDomain.BaseDirectory;
+            string dataFolder = Path.Combine(baseFolder, "Data");
+            Directory.CreateDirectory(dataFolder);
+
+            _dbPath = Path.Combine(dataFolder, "quran_tracker.db");
+
+            // انتقال فایل قدیمی به پوشه جدید در صورت وجود
+            string oldDbPath = Path.Combine(baseFolder, "quran_tracker.db");
+            if (File.Exists(oldDbPath) && !File.Exists(_dbPath))
+            {
+                File.Move(oldDbPath, _dbPath);
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

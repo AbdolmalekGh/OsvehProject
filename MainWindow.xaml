@@ -1,7 +1,7 @@
 ﻿<Window x:Class="QuranTracker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Osveh" Height="800" Width="1200"
+        Title="Osveh Tracker" Height="800" Width="1200"
         FlowDirection="RightToLeft" WindowStartupLocation="CenterScreen"
         Background="#1B5E20" FontFamily="Segoe UI, Tahoma">
 
@@ -25,20 +25,43 @@
         </Style>
 
         <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="#4CAF50"/>
-            <Setter Property="RowBackground" Value="#81C784"/>
+            <Setter Property="Background" Value="#E8F5E9"/>
+            <Setter Property="RowBackground" Value="#C8E6C9"/>
             <Setter Property="AlternatingRowBackground" Value="#A5D6A7"/>
             <Setter Property="AutoGenerateColumns" Value="False"/>
             <Setter Property="IsReadOnly" Value="True"/>
             <Setter Property="SelectionMode" Value="Single"/>
             <Setter Property="FontSize" Value="18"/>
-            <Setter Property="RowHeight" Value="40"/>
-            <Setter Property="ColumnHeaderHeight" Value="42"/>
+            <Setter Property="RowHeight" Value="45"/>
+            <Setter Property="ColumnHeaderHeight" Value="45"/>
         </Style>
+
+        <Style TargetType="Button" x:Key="StandardBtn">
+            <Setter Property="Background" Value="#388E3C"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2E7D32"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Window.InputBindings>
-        <KeyBinding Key="F1" Command="{Binding ChangeTabCommand}" CommandParameter="0"/>
+        <KeyBinding Key="F1" Command="{Binding F1KeyCommand}"/>
         <KeyBinding Key="F2" Command="{Binding ChangeTabCommand}" CommandParameter="1"/>
         <KeyBinding Key="F3" Command="{Binding ChangeTabCommand}" CommandParameter="2"/>
         <KeyBinding Key="F4" Command="{Binding ChangeTabCommand}" CommandParameter="3"/>
@@ -55,30 +78,31 @@
     <Grid>
         <Grid IsEnabled="{Binding IsMainViewEnabled}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="240"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- راهنمای سمت راست -->
-            <StackPanel Grid.Column="0" Background="#2E7D32" Margin="10">
-                <TextBlock Text="منوی اصلی" Foreground="White" FontWeight="Bold" FontSize="22" Margin="10,15,10,20" HorizontalAlignment="Center"/>
-                <TextBlock Text="F1 : صفحات" Foreground="White" FontSize="16" Margin="20,6"/>
-                <TextBlock Text="F2 : جزء ها" Foreground="White" FontSize="16" Margin="20,6"/>
-                <TextBlock Text="F3 : جزء سی" Foreground="White" FontSize="16" Margin="20,6"/>
-                <TextBlock Text="F4 : ختم ها" Foreground="White" FontSize="16" Margin="20,6"/>
-                <TextBlock Text="F5 : تاریخچه" Foreground="White" FontSize="16" Margin="20,6"/>
-                <TextBlock Text="F6 : تنظیمات" Foreground="White" FontSize="16" Margin="20,6"/>
+            <Border Grid.Column="0" Background="#2E7D32" Margin="10" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="منوی اصلی" Foreground="White" FontWeight="Bold" FontSize="22" Margin="10,20,10,20" HorizontalAlignment="Center"/>
+                    <TextBlock Text="F1 : صفحات" Foreground="White" FontSize="16" Margin="20,8"/>
+                    <TextBlock Text="F2 : جزء ها" Foreground="White" FontSize="16" Margin="20,8"/>
+                    <TextBlock Text="F3 : جزء سی" Foreground="White" FontSize="16" Margin="20,8"/>
+                    <TextBlock Text="F4 : ختم ها" Foreground="White" FontSize="16" Margin="20,8"/>
+                    <TextBlock Text="F5 : تاریخچه" Foreground="White" FontSize="16" Margin="20,8"/>
+                    <TextBlock Text="F6 : تنظیمات" Foreground="White" FontSize="16" Margin="20,8"/>
 
-                <Border BorderThickness="0,1,0,0" BorderBrush="#81C784" Margin="10,15"/>
+                    <Border BorderThickness="0,1,0,0" BorderBrush="#81C784" Margin="15,20"/>
 
-                <TextBlock Text="راهنمای کلیدها" Foreground="#FFD54F" FontWeight="Bold" FontSize="18" Margin="10,5" HorizontalAlignment="Center"/>
-                <TextBlock Text="F7 : مرتب‌سازی" Foreground="White" FontSize="15" Margin="20,4"/>
-                <TextBlock Text="F10 : سوره / صفحه" Foreground="White" FontSize="15" Margin="20,4"/>
-                <TextBlock Text="F11 : ویرایش تکی" Foreground="White" FontSize="15" Margin="20,4"/>
-                <TextBlock Text="F12 : ویرایش متوالی" Foreground="White" FontSize="15" Margin="20,4"/>
-                <TextBlock Text="← / → : جابجایی بین فیلدها" Foreground="#81D4FA" FontSize="15" Margin="20,4"/>
-                <TextBlock Text="E / Enter : ویرایش ردیف" Foreground="White" FontSize="15" Margin="20,4"/>
-            </StackPanel>
+                    <TextBlock Text="راهنمای میانبرها" Foreground="#FFD54F" FontWeight="Bold" FontSize="18" Margin="10,5" HorizontalAlignment="Center"/>
+                    <TextBlock Text="F7 : تغییر مرتب‌سازی" Foreground="White" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="F10 : تغییر حالت جزء ۳۰" Foreground="White" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="← / → : جابجایی فیلدها" Foreground="#81D4FA" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="↑ / ↓ : تغییر مقدار عدد" Foreground="#81D4FA" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="F1 : راهنما (هنگام ویرایش)" Foreground="#81D4FA" FontSize="15" Margin="20,6"/>
+                </StackPanel>
+            </Border>
 
             <Grid Grid.Column="1" Margin="10">
                 <Grid.RowDefinitions>
@@ -90,18 +114,17 @@
                 <Border Grid.Row="0" Background="#2E7D32" CornerRadius="8" Padding="15,10" Margin="0,0,0,10">
                     <DockPanel LastChildFill="False">
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                            <TextBlock Text="{Binding CurrentTabName}" Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,15,0"/>
-
-                            <!-- لیست کشویی مرتب‌سازی -->
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentTabName}" Foreground="White" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                            <!-- مرتب‌سازی -->
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
                                 <TextBlock Text="مرتب‌‌سازی [F7]:" Foreground="#FFD54F" FontSize="16" VerticalAlignment="Center" Margin="5,0"/>
-                                <ComboBox ItemsSource="{Binding SortOptions}" DisplayMemberPath="Title" SelectedItem="{Binding SelectedSortOption}" Width="150"/>
+                                <ComboBox ItemsSource="{Binding SortOptions}" DisplayMemberPath="Title" SelectedItem="{Binding SelectedSortOption}" Width="160"/>
                             </StackPanel>
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                            <Button Content="ویرایش تکی [F11]" Command="{Binding OpenEditSingleCommand}" Margin="5,0" Padding="10,5" Background="#388E3C" Foreground="White" BorderThickness="0"/>
-                            <Button Content="ویرایش متوالی [F12]" Command="{Binding OpenEditMultipleCommand}" Margin="5,0" Padding="10,5" Background="#388E3C" Foreground="White" BorderThickness="0"/>
+                            <Button Content="ویرایش تکی [F11]" Command="{Binding OpenEditSingleCommand}" Style="{StaticResource StandardBtn}" Margin="5,0"/>
+                            <Button Content="ویرایش متوالی [F12]" Command="{Binding OpenEditMultipleCommand}" Style="{StaticResource StandardBtn}" Margin="5,0"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>
@@ -115,7 +138,7 @@
                     </TabControl.ItemContainerStyle>
 
                     <TabItem>
-                        <DataGrid Name="PagesGrid" ItemsSource="{Binding Pages}">
+                        <DataGrid ItemsSource="{Binding Pages}">
                             <DataGrid.InputBindings>
                                 <KeyBinding Key="E" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                                 <KeyBinding Key="Enter" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
@@ -123,20 +146,30 @@
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="شماره صفحه" Binding="{Binding PageNumber}" Width="*"/>
                                 <DataGridTextColumn Header="تعداد تکرار" Binding="{Binding ReadCount}" Width="*"/>
+                                <DataGridTemplateColumn Width="120" Header="عملیات">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="ویرایش ✏️" Command="{Binding DataContext.EditSelectedItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource StandardBtn}" Margin="5"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>
 
                     <TabItem>
-                        <DataGrid Name="JuzsGrid" ItemsSource="{Binding Juzs}">
-                            <DataGrid.InputBindings>
-                                <KeyBinding Key="E" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                <KeyBinding Key="Enter" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                            </DataGrid.InputBindings>
+                        <DataGrid ItemsSource="{Binding Juzs}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="شماره جزء" Binding="{Binding JuzNumber}" Width="*"/>
-                                <DataGridTextColumn Header="کمترین تکرار (تکرار کل جزء)" Binding="{Binding MinCount}" Width="*"/>
+                                <DataGridTextColumn Header="کمترین تکرار (کامل)" Binding="{Binding MinCount}" Width="*"/>
                                 <DataGridTextColumn Header="بیشترین تکرار" Binding="{Binding MaxCount}" Width="*"/>
+                                <DataGridTemplateColumn Width="120" Header="عملیات">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="ویرایش ✏️" Command="{Binding DataContext.EditSelectedItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource StandardBtn}" Margin="5"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>
@@ -148,37 +181,41 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <Button Grid.Row="0" Content="تغییر نمایش بین سوره و صفحه [F10]" Command="{Binding ToggleJuz30ModeCommand}" 
-                                    Margin="0,0,0,10" Padding="10" Background="#388E3C" Foreground="White" FontWeight="Bold" FontSize="16" HorizontalAlignment="Left"/>
+                            <Button Grid.Row="0" Content="تغییر نمایش بین سوره و صفحه [F10]" Command="{Binding ToggleJuz30ModeCommand}" Style="{StaticResource StandardBtn}" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Left"/>
 
                             <Grid Grid.Row="1">
-                                <DataGrid Name="SurasGrid" ItemsSource="{Binding Suras}" Visibility="{Binding IsJuz30SurasVisible, Converter={StaticResource BoolToVis}}">
-                                    <DataGrid.InputBindings>
-                                        <KeyBinding Key="E" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                        <KeyBinding Key="Enter" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                    </DataGrid.InputBindings>
+                                <DataGrid ItemsSource="{Binding Suras}" Visibility="{Binding IsJuz30SurasVisible, Converter={StaticResource BoolToVis}}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="شماره سوره (78 تا 114)" Binding="{Binding SuraNumber}" Width="200"/>
+                                        <DataGridTextColumn Header="شماره سوره" Binding="{Binding SuraNumber}" Width="150"/>
                                         <DataGridTextColumn Header="نام سوره" Binding="{Binding Name}" Width="*"/>
                                         <DataGridTextColumn Header="تعداد تکرار" Binding="{Binding ReadCount}" Width="*"/>
+                                        <DataGridTemplateColumn Width="120" Header="عملیات">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="ویرایش ✏️" Command="{Binding DataContext.EditSelectedItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource StandardBtn}" Margin="5"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
 
-                                <DataGrid Name="Juz30PagesGrid" ItemsSource="{Binding Juz30Pages}" Visibility="{Binding IsJuz30PagesVisible, Converter={StaticResource BoolToVis}}">
-                                    <DataGrid.InputBindings>
-                                        <KeyBinding Key="E" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                        <KeyBinding Key="Enter" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                    </DataGrid.InputBindings>
+                                <DataGrid ItemsSource="{Binding Juz30Pages}" Visibility="{Binding IsJuz30PagesVisible, Converter={StaticResource BoolToVis}}">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="شماره صفحه (582 تا 604)" Binding="{Binding PageNumber}" Width="*"/>
+                                        <DataGridTextColumn Header="شماره صفحه" Binding="{Binding PageNumber}" Width="*"/>
                                         <DataGridTextColumn Header="تعداد تکرار" Binding="{Binding ReadCount}" Width="*"/>
+                                        <DataGridTemplateColumn Width="120" Header="عملیات">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="ویرایش ✏️" Command="{Binding DataContext.EditSelectedItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource StandardBtn}" Margin="5"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </Grid>
                         </Grid>
                     </TabItem>
 
-                    <!-- تب ختم‌ها بر اساس شماره کد -->
                     <TabItem>
                         <Grid>
                             <Grid.RowDefinitions>
@@ -193,15 +230,18 @@
                                 </StackPanel>
                             </Border>
 
-                            <DataGrid Grid.Row="1" Name="KhatmsGrid" ItemsSource="{Binding KhatmRecords}">
-                                <DataGrid.InputBindings>
-                                    <KeyBinding Key="E" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                    <KeyBinding Key="Enter" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                </DataGrid.InputBindings>
+                            <DataGrid ItemsSource="{Binding KhatmRecords}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="شماره / کد شناسه" Binding="{Binding Id}" Width="150"/>
+                                    <DataGridTextColumn Header="شناسه" Binding="{Binding Id}" Width="100"/>
                                     <DataGridTextColumn Header="نام ختم / ذکر" Binding="{Binding Name}" Width="*"/>
                                     <DataGridTextColumn Header="تعداد انجام شده" Binding="{Binding Count}" Width="*"/>
+                                    <DataGridTemplateColumn Width="120" Header="عملیات">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="ویرایش ✏️" Command="{Binding DataContext.EditSelectedItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource StandardBtn}" Margin="5"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
@@ -210,7 +250,7 @@
                     <TabItem>
                         <DataGrid ItemsSource="{Binding Histories}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="تاریخ و زمان" Binding="{Binding PersianDate}" Width="220"/>
+                                <DataGridTextColumn Header="تاریخ و زمان" Binding="{Binding PersianDate}" Width="250"/>
                                 <DataGridTextColumn Header="شرح عملیات تغییر" Binding="{Binding ActionDescription}" Width="*"/>
                             </DataGrid.Columns>
                         </DataGrid>
@@ -219,8 +259,10 @@
                     <TabItem>
                         <Border Background="#2E7D32" CornerRadius="10" Padding="30" Margin="20">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="تنظیمات نرم‌افزار" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                                <TextBlock Text="پایگاه داده در کنار فایل برنامه ذخیره می‌شود (quran_tracker.db)." Foreground="White" FontSize="18" HorizontalAlignment="Center"/>
+                                <TextBlock Text="تنظیمات نرم‌افزار و داده‌ها" Foreground="White" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                                <Button Content="📂 باز کردن پوشه محل ذخیره داده‌ها" Click="OpenDataFolder_Click" Style="{StaticResource StandardBtn}" FontSize="20" Margin="20,10" Width="400"/>
+                                <Button Content="📥 وارد کردن فایل قدیمی اطلاعات (JSON)" Click="ImportJson_Click" Style="{StaticResource StandardBtn}" FontSize="20" Margin="20,10" Width="400"/>
+                                <TextBlock Text="پایگاه داده به صورت خودکار در پوشه Data ذخیره می‌شود." Foreground="#C8E6C9" FontSize="16" HorizontalAlignment="Center" Margin="0,20,0,0"/>
                             </StackPanel>
                         </Border>
                     </TabItem>
@@ -228,27 +270,24 @@
             </Grid>
         </Grid>
 
-        <!-- Overlay ویرایش (با قابلیت جابجایی با Arrow Keys) -->
+        <!-- Overlay ویرایش -->
         <Grid Panel.ZIndex="100" Background="#F01B5E20" Visibility="{Binding IsEditOverlayVisible, Converter={StaticResource BoolToVis}}">
-            <Border Background="#2E7D32" CornerRadius="15" Width="750" Height="480" Padding="30">
+            <Border Background="#2E7D32" CornerRadius="15" Width="800" Height="500" Padding="30">
                 <StackPanel Name="OverlayInputPanel">
-                    <TextBlock Text="{Binding EditTitle}" FontSize="26" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                    <TextBlock Text="{Binding EditTitle}" FontSize="26" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <TextBlock Text="راهنما: کلید F1 را برای مشاهده لیست شماره‌ها بزنید" Foreground="#FFD54F" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,20"/>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
                         <TextBlock Text="از (کد/شماره):" Foreground="White" FontSize="20" VerticalAlignment="Center"/>
                         <TextBox Name="TxtStartInput" Text="{Binding StartInput, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <!-- DropDown انتخاب سوره شروع -->
-                        <ComboBox ItemsSource="{Binding Suras}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedStartSura}"
-                                  Visibility="{Binding IsSuraDropdownVisible, Converter={StaticResource BoolToVis}}" Width="140"/>
+                        <ComboBox ItemsSource="{Binding Suras}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedStartSura}" Visibility="{Binding IsSuraDropdownVisible, Converter={StaticResource BoolToVis}}" Width="150"/>
 
                         <StackPanel Orientation="Horizontal" Visibility="{Binding IsMultipleMode, Converter={StaticResource BoolToVis}}">
-                            <TextBlock Text="تا (کد/شماره):" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                            <TextBlock Text="تا (کد/شماره):" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="20,0,0,0"/>
                             <TextBox Name="TxtEndInput" Text="{Binding EndInput, UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <!-- DropDown انتخاب سوره پایان -->
-                            <ComboBox ItemsSource="{Binding Suras}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEndSura}"
-                                      Visibility="{Binding IsSuraDropdownVisible, Converter={StaticResource BoolToVis}}" Width="140"/>
+                            <ComboBox ItemsSource="{Binding Suras}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEndSura}" Visibility="{Binding IsSuraDropdownVisible, Converter={StaticResource BoolToVis}}" Width="150"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -256,38 +295,49 @@
                         <TextBlock Text="افزایش (+):" Foreground="White" FontSize="20" VerticalAlignment="Center"/>
                         <TextBox Name="TxtAddInput" Text="{Binding AddCountInput, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="کاهش (-):" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="20,0,0,0"/>
+                        <TextBlock Text="کاهش (-):" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="30,0,0,0"/>
                         <TextBox Name="TxtSubInput" Text="{Binding SubCountInput, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="#FF8A80" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5"/>
-                    <TextBlock Text="{Binding StringFormat='تکرار فعلی این آیتم: {0}', Path=CurrentItemCount}" Foreground="#81D4FA" FontSize="18" HorizontalAlignment="Center" Margin="0,10"/>
+                    <TextBlock Text="{Binding StringFormat='تعداد تکرار فعلی این مورد: {0}', Path=CurrentItemCount}" Foreground="#81D4FA" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10"/>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
-                        <Border Background="#388E3C" CornerRadius="5" Padding="15,10" Margin="10">
-                            <TextBlock Text="Enter : ادامه" Foreground="White" FontSize="18"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+                        <Border Background="#388E3C" CornerRadius="8" Padding="20,10" Margin="10">
+                            <TextBlock Text="Enter : تأیید و ادامه" Foreground="White" FontSize="18" FontWeight="Bold"/>
                         </Border>
-                        <Border Background="#D32F2F" CornerRadius="5" Padding="15,10" Margin="10">
-                            <TextBlock Text="Esc : لغو" Foreground="White" FontSize="18"/>
+                        <Border Background="#D32F2F" CornerRadius="8" Padding="20,10" Margin="10">
+                            <TextBlock Text="Esc : لغو عملیات" Foreground="White" FontSize="18" FontWeight="Bold"/>
                         </Border>
                     </StackPanel>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <!-- Overlay تایید -->
+        <!-- Overlay راهنمای F1 (نمایش لیست) -->
+        <Grid Panel.ZIndex="105" Background="#C0000000" Visibility="{Binding IsHelpListVisible, Converter={StaticResource BoolToVis}}">
+            <Border Background="#2E7D32" CornerRadius="12" Width="450" Height="550" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="{Binding HelpListTitle}" FontSize="24" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,15"/>
+                    <DataGrid ItemsSource="{Binding HelpListItems}" Height="420" Background="White" RowHeight="35" FontSize="18" AutoGenerateColumns="True" IsReadOnly="True" HeadersVisibility="Column"/>
+                    <TextBlock Text="برای بستن دوباره F1 را بزنید" Foreground="#FFD54F" FontSize="15" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Overlay تایید نهایی -->
         <Grid Panel.ZIndex="101" Background="#F51B5E20" Visibility="{Binding IsConfirmOverlayVisible, Converter={StaticResource BoolToVis}}">
-            <Border Background="#1B5E20" BorderBrush="White" BorderThickness="2" CornerRadius="15" Width="600" Height="320" Padding="30">
+            <Border Background="#1B5E20" BorderBrush="White" BorderThickness="2" CornerRadius="15" Width="650" Height="320" Padding="30">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="تایید نهایی تغییرات" FontSize="26" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                    <TextBlock Text="{Binding ConfirmationMessage}" FontSize="20" Foreground="White" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,30"/>
+                    <TextBlock Text="تایید نهایی تغییرات" FontSize="28" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                    <TextBlock Text="{Binding ConfirmationMessage}" FontSize="22" Foreground="White" TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,30"/>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Border Background="#388E3C" CornerRadius="5" Padding="15,10" Margin="10">
-                            <TextBlock Text="Enter : تایید قطعی" Foreground="White" FontSize="18"/>
+                        <Border Background="#388E3C" CornerRadius="8" Padding="20,10" Margin="10">
+                            <TextBlock Text="Enter : تایید قطعی" Foreground="White" FontSize="18" FontWeight="Bold"/>
                         </Border>
-                        <Border Background="#D32F2F" CornerRadius="5" Padding="15,10" Margin="10">
-                            <TextBlock Text="Esc : بازگشت" Foreground="White" FontSize="18"/>
+                        <Border Background="#D32F2F" CornerRadius="8" Padding="20,10" Margin="10">
+                            <TextBlock Text="Esc : بازگشت" Foreground="White" FontSize="18" FontWeight="Bold"/>
                         </Border>
                     </StackPanel>
                 </StackPanel>
