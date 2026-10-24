@@ -10,7 +10,7 @@ using QuranTracker.Services;
 
 namespace QuranTracker.ViewModels
 {
-    public enum AppTab { Pages, Juzs, Juz30, Khatms, History, Settings }
+    public enum AppTab { Pages, Juzs, Juz30, Khatms, Persons, History, Settings }
     public enum OverlayState { None, Edit, Confirm }
     public enum EditMode { Single, Multiple }
     public enum Juz30Mode { Suras, Pages }
@@ -48,6 +48,7 @@ namespace QuranTracker.ViewModels
         public ObservableCollection<QuranSura> Suras { get; set; }
         public ObservableCollection<KhatmRecord> KhatmRecords { get; set; }
         public ObservableCollection<HistoryLog> Histories { get; set; }
+        public PersonManagementViewModel PersonVM { get; }
 
         public List<SortOption> SortOptions { get; } = new List<SortOption>
         {
@@ -76,6 +77,7 @@ namespace QuranTracker.ViewModels
             AppTab.Juzs => "جزء‌های قرآن",
             AppTab.Juz30 => "جزء سی‌ام",
             AppTab.Khatms => "ختم‌ها و اذکار",
+            AppTab.Persons => "اعضای دارالقرآن",
             AppTab.History => "تاریخچه تغییرات",
             AppTab.Settings => "تنظیمات",
             _ => ""
@@ -221,9 +223,11 @@ namespace QuranTracker.ViewModels
         public RelayCommand EscKeyCommand { get; }
         public RelayCommandWithParameter EditSelectedItemCommand { get; }
 
-        public MainViewModel(QuranService quranService)
+        public MainViewModel(QuranService quranService, PersonService personService)
         {
             _quranService = quranService ?? throw new ArgumentNullException(nameof(quranService));
+            PersonVM = new PersonManagementViewModel(personService ?? throw new ArgumentNullException(nameof(personService)));
+
             SelectedSortOption = SortOptions[0];
 
             ChangeTabCommand = new RelayCommandWithParameter(p => { if (IsMainViewEnabled) CurrentTabIndex = int.Parse(p.ToString()); });
@@ -335,7 +339,7 @@ namespace QuranTracker.ViewModels
 
         private void OpenEdit(EditMode mode, int? prefillId = null)
         {
-            if (!IsMainViewEnabled || _currentTab == AppTab.History || _currentTab == AppTab.Settings) return;
+            if (!IsMainViewEnabled || _currentTab == AppTab.History || _currentTab == AppTab.Settings || _currentTab == AppTab.Persons) return;
 
             CurrentEditMode = mode;
             StartInput = prefillId?.ToString() ?? "";

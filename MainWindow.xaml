@@ -1,7 +1,7 @@
 ﻿<Window x:Class="QuranTracker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Osveh Tracker" Height="800" Width="1200"
+        Title="Osveh Tracker" Height="850" Width="1300"
         FlowDirection="RightToLeft" WindowStartupLocation="CenterScreen"
         Background="#1B5E20" FontFamily="Segoe UI, Tahoma">
 
@@ -9,18 +9,16 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         <Style TargetType="TextBox">
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5,0"/>
-            <Setter Property="Width" Value="90"/>
-            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Height" Value="35"/>
         </Style>
 
         <Style TargetType="ComboBox">
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Margin" Value="3"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
@@ -31,15 +29,15 @@
             <Setter Property="AutoGenerateColumns" Value="False"/>
             <Setter Property="IsReadOnly" Value="True"/>
             <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="RowHeight" Value="45"/>
-            <Setter Property="ColumnHeaderHeight" Value="45"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="RowHeight" Value="40"/>
+            <Setter Property="ColumnHeaderHeight" Value="40"/>
         </Style>
 
         <Style TargetType="Button" x:Key="StandardBtn">
             <Setter Property="Background" Value="#388E3C"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Padding" Value="12,6"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -57,7 +55,6 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
     </Window.Resources>
 
     <Window.InputBindings>
@@ -67,7 +64,8 @@
         <KeyBinding Key="F4" Command="{Binding ChangeTabCommand}" CommandParameter="3"/>
         <KeyBinding Key="F5" Command="{Binding ChangeTabCommand}" CommandParameter="4"/>
         <KeyBinding Key="F6" Command="{Binding ChangeTabCommand}" CommandParameter="5"/>
-        <KeyBinding Key="F7" Command="{Binding CycleSortCommand}"/>
+        <KeyBinding Key="F7" Command="{Binding ChangeTabCommand}" CommandParameter="6"/>
+        <KeyBinding Key="F8" Command="{Binding CycleSortCommand}"/>
         <KeyBinding Key="F10" Command="{Binding ToggleJuz30ModeCommand}"/>
         <KeyBinding Key="F11" Command="{Binding OpenEditSingleCommand}"/>
         <KeyBinding Key="F12" Command="{Binding OpenEditMultipleCommand}"/>
@@ -85,22 +83,23 @@
             <!-- راهنمای سمت راست -->
             <Border Grid.Column="0" Background="#2E7D32" Margin="10" CornerRadius="8">
                 <StackPanel>
-                    <TextBlock Text="منوی اصلی" Foreground="White" FontWeight="Bold" FontSize="22" Margin="10,20,10,20" HorizontalAlignment="Center"/>
-                    <TextBlock Text="F1 : صفحات" Foreground="White" FontSize="16" Margin="20,8"/>
-                    <TextBlock Text="F2 : جزء ها" Foreground="White" FontSize="16" Margin="20,8"/>
-                    <TextBlock Text="F3 : جزء سی" Foreground="White" FontSize="16" Margin="20,8"/>
-                    <TextBlock Text="F4 : ختم ها" Foreground="White" FontSize="16" Margin="20,8"/>
-                    <TextBlock Text="F5 : تاریخچه" Foreground="White" FontSize="16" Margin="20,8"/>
-                    <TextBlock Text="F6 : تنظیمات" Foreground="White" FontSize="16" Margin="20,8"/>
+                    <TextBlock Text="منوی اصلی" Foreground="White" FontWeight="Bold" FontSize="22" Margin="10,15,10,15" HorizontalAlignment="Center"/>
+                    <TextBlock Text="F1 : صفحات قرآن" Foreground="White" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="F2 : جزء های قرآن" Foreground="White" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="F3 : جزء سی‌ام" Foreground="White" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="F4 : ختم ها و اذکار" Foreground="White" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="F5 : اعضای دارالقرآن" Foreground="#FFD54F" FontWeight="Bold" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="F6 : تاریخچه تغییرات" Foreground="White" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="F7 : تنظیمات" Foreground="White" FontSize="15" Margin="20,6"/>
 
-                    <Border BorderThickness="0,1,0,0" BorderBrush="#81C784" Margin="15,20"/>
+                    <Border BorderThickness="0,1,0,0" BorderBrush="#81C784" Margin="15,15"/>
 
-                    <TextBlock Text="راهنمای میانبرها" Foreground="#FFD54F" FontWeight="Bold" FontSize="18" Margin="10,5" HorizontalAlignment="Center"/>
-                    <TextBlock Text="F7 : تغییر مرتب‌سازی" Foreground="White" FontSize="15" Margin="20,6"/>
-                    <TextBlock Text="F10 : تغییر حالت جزء ۳۰" Foreground="White" FontSize="15" Margin="20,6"/>
-                    <TextBlock Text="← / → : جابجایی فیلدها" Foreground="#81D4FA" FontSize="15" Margin="20,6"/>
-                    <TextBlock Text="↑ / ↓ : تغییر مقدار عدد" Foreground="#81D4FA" FontSize="15" Margin="20,6"/>
-                    <TextBlock Text="F1 : راهنما (هنگام ویرایش)" Foreground="#81D4FA" FontSize="15" Margin="20,6"/>
+                    <TextBlock Text="راهنمای میانبرها" Foreground="#FFD54F" FontWeight="Bold" FontSize="17" Margin="10,5" HorizontalAlignment="Center"/>
+                    <TextBlock Text="F8 : تغییر مرتب‌سازی" Foreground="White" FontSize="14" Margin="20,5"/>
+                    <TextBlock Text="F10 : تغییر حالت جزء ۳۰" Foreground="White" FontSize="14" Margin="20,5"/>
+                    <TextBlock Text="← / → : جابجایی فیلدها" Foreground="#81D4FA" FontSize="14" Margin="20,5"/>
+                    <TextBlock Text="↑ / ↓ : تغییر مقدار عدد" Foreground="#81D4FA" FontSize="14" Margin="20,5"/>
+                    <TextBlock Text="F1 : راهنما (هنگام ویرایش)" Foreground="#81D4FA" FontSize="14" Margin="20,5"/>
                 </StackPanel>
             </Border>
 
@@ -114,11 +113,10 @@
                 <Border Grid.Row="0" Background="#2E7D32" CornerRadius="8" Padding="15,10" Margin="0,0,0,10">
                     <DockPanel LastChildFill="False">
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                            <TextBlock Text="{Binding CurrentTabName}" Foreground="White" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,15,0"/>
-                            <!-- مرتب‌سازی -->
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                                <TextBlock Text="مرتب‌‌سازی [F7]:" Foreground="#FFD54F" FontSize="16" VerticalAlignment="Center" Margin="5,0"/>
-                                <ComboBox ItemsSource="{Binding SortOptions}" DisplayMemberPath="Title" SelectedItem="{Binding SelectedSortOption}" Width="160"/>
+                            <TextBlock Text="{Binding CurrentTabName}" Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0" Visibility="{Binding CurrentTabIndex, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="مرتب‌‌سازی [F8]:" Foreground="#FFD54F" FontSize="15" VerticalAlignment="Center" Margin="5,0"/>
+                                <ComboBox ItemsSource="{Binding SortOptions}" DisplayMemberPath="Title" SelectedItem="{Binding SelectedSortOption}" Width="150"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -129,7 +127,7 @@
                     </DockPanel>
                 </Border>
 
-                <!-- جداول -->
+                <!-- جداول و تب‌ها -->
                 <TabControl Grid.Row="1" SelectedIndex="{Binding CurrentTabIndex}" Background="Transparent" BorderThickness="0">
                     <TabControl.ItemContainerStyle>
                         <Style TargetType="TabItem">
@@ -137,12 +135,9 @@
                         </Style>
                     </TabControl.ItemContainerStyle>
 
+                    <!-- تب ۱: صفحات -->
                     <TabItem>
                         <DataGrid ItemsSource="{Binding Pages}">
-                            <DataGrid.InputBindings>
-                                <KeyBinding Key="E" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                                <KeyBinding Key="Enter" Command="{Binding EditSelectedItemCommand}" CommandParameter="{Binding Path=SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
-                            </DataGrid.InputBindings>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="شماره صفحه" Binding="{Binding PageNumber}" Width="*"/>
                                 <DataGridTextColumn Header="تعداد تکرار" Binding="{Binding ReadCount}" Width="*"/>
@@ -157,6 +152,7 @@
                         </DataGrid>
                     </TabItem>
 
+                    <!-- تب ۲: جزءها -->
                     <TabItem>
                         <DataGrid ItemsSource="{Binding Juzs}">
                             <DataGrid.Columns>
@@ -174,6 +170,7 @@
                         </DataGrid>
                     </TabItem>
 
+                    <!-- تب ۳: جزء سی‌ام -->
                     <TabItem>
                         <Grid>
                             <Grid.RowDefinitions>
@@ -181,7 +178,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <Button Grid.Row="0" Content="تغییر نمایش بین سوره و صفحه [F10]" Command="{Binding ToggleJuz30ModeCommand}" Style="{StaticResource StandardBtn}" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+                            <Button Grid.Row="0" Content="تغییر نمایش بین سوره و صفحه [F10]" Command="{Binding ToggleJuz30ModeCommand}" Style="{StaticResource StandardBtn}" FontSize="15" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Left"/>
 
                             <Grid Grid.Row="1">
                                 <DataGrid ItemsSource="{Binding Suras}" Visibility="{Binding IsJuz30SurasVisible, Converter={StaticResource BoolToVis}}">
@@ -216,6 +213,7 @@
                         </Grid>
                     </TabItem>
 
+                    <!-- تب ۴: ختم‌ها و اذکار -->
                     <TabItem>
                         <Grid>
                             <Grid.RowDefinitions>
@@ -223,14 +221,14 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <Border Grid.Row="0" Background="#388E3C" CornerRadius="10" Padding="20" Margin="0,0,0,15">
+                            <Border Grid.Row="0" Background="#388E3C" CornerRadius="10" Padding="15" Margin="0,0,0,15">
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="ختم کامل قرآن (کمترین تکرار صفحات): " Foreground="White" FontSize="20" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding FullQuranKhatmCount}" Foreground="#FFD54F" FontSize="32" FontWeight="Bold" Margin="10,0"/>
+                                    <TextBlock Text="ختم کامل قرآن (کمترین تکرار صفحات): " Foreground="White" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding FullQuranKhatmCount}" Foreground="#FFD54F" FontSize="28" FontWeight="Bold" Margin="10,0"/>
                                 </StackPanel>
                             </Border>
 
-                            <DataGrid ItemsSource="{Binding KhatmRecords}">
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding KhatmRecords}">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="شناسه" Binding="{Binding Id}" Width="100"/>
                                     <DataGridTextColumn Header="نام ختم / ذکر" Binding="{Binding Name}" Width="*"/>
@@ -247,6 +245,280 @@
                         </Grid>
                     </TabItem>
 
+                    <!-- تب ۵: اعضای دارالقرآن -->
+                    <TabItem DataContext="{Binding PersonVM}" x:Name="MainPersonControl">
+                        <Grid Margin="0,5,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="330"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- ستون راست: جستجو و لیست اعضا -->
+                            <Border Grid.Column="0" Background="#2E7D32" CornerRadius="8" Padding="10" Margin="0,0,10,0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Button Grid.Row="0" Content="➕ ثبت شخص جدید" Command="{Binding AddNewPersonCommand}" Style="{StaticResource StandardBtn}" FontWeight="Bold" Margin="0,0,0,8" HorizontalAlignment="Stretch"/>
+
+                                    <TextBox Grid.Row="1" Text="{Binding SearchNameQuery, UpdateSourceTrigger=PropertyChanged}" Tag="جستجو بر اساس نام..." Margin="0,0,0,5"/>
+                                    <TextBox Grid.Row="2" Text="{Binding SearchNationalCodeQuery, UpdateSourceTrigger=PropertyChanged}" Tag="جستجو بر اساس کد ملی..." Margin="0,0,0,8"/>
+
+                                    <DataGrid Grid.Row="3" ItemsSource="{Binding Persons}" SelectedItem="{Binding SelectedPerson}" AutoGenerateColumns="False" HeadersVisibility="None" Background="#E8F5E9">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="نام کامل" Binding="{Binding FullName}" Width="*"/>
+                                            <DataGridTextColumn Header="کد ملی" Binding="{Binding NationalCode}" Width="110"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+
+                            <!-- ستون چپ: پنل جزئیات -->
+                            <Border Grid.Column="1" Background="#2E7D32" CornerRadius="8" Padding="15">
+                                <Grid>
+                                    <Grid Visibility="{Binding HasSelectedPerson, Converter={StaticResource BoolToVis}}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- ۱. هدر بالای صفحه -->
+                                        <Border Grid.Row="0" Background="#1B5E20" CornerRadius="8" Padding="15" Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Border Grid.Column="0" Width="60" Height="60" CornerRadius="30" Background="White" Cursor="Hand" BorderBrush="#FFD54F" BorderThickness="2">
+                                                    <Border.InputBindings>
+                                                        <MouseBinding Gesture="LeftClick" Command="{Binding ChangeProfileImageCommand}"/>
+                                                    </Border.InputBindings>
+                                                    <Grid>
+                                                        <Ellipse Width="60" Height="60">
+                                                            <Ellipse.Fill>
+                                                                <ImageBrush ImageSource="{Binding SelectedPerson.ProfileImagePath}" Stretch="UniformToFill"/>
+                                                            </Ellipse.Fill>
+                                                        </Ellipse>
+                                                        <TextBlock Text="📷 عکس" Foreground="#1B5E20" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Background="#CCFFFFFF" Padding="3">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding SelectedPerson.ProfileImagePath}" Value="">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                </Border>
+
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0,0,0">
+                                                    <TextBlock Text="{Binding SelectedPerson.FullName}" Foreground="White" FontSize="20" FontWeight="Bold"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                        <TextBlock Text="کد ملی: " Foreground="#C8E6C9" FontSize="14"/>
+                                                        <TextBlock Text="{Binding SelectedPerson.NationalCode}" Foreground="#FFD54F" FontSize="14" FontWeight="Bold"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Button Content="👤 مشخصات" Command="{Binding ChangeDetailTabCommand}" CommandParameter="0" Style="{StaticResource StandardBtn}" Margin="3,0"/>
+                                                    <Button Content="📝 یادداشت‌ها" Command="{Binding ChangeDetailTabCommand}" CommandParameter="1" Style="{StaticResource StandardBtn}" Margin="3,0"/>
+                                                    <Button Content="📎 ضمایم" Command="{Binding ChangeDetailTabCommand}" CommandParameter="2" Style="{StaticResource StandardBtn}" Margin="3,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- ۲. تب‌های داخلی -->
+                                        <TabControl Grid.Row="1" SelectedIndex="{Binding DetailActiveTab}" Background="Transparent" BorderThickness="0">
+                                            <TabControl.ItemContainerStyle>
+                                                <Style TargetType="TabItem">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </Style>
+                                            </TabControl.ItemContainerStyle>
+
+                                            <!-- مشخصات -->
+                                            <TabItem>
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                    <StackPanel DataContext="{Binding SelectedPerson}">
+                                                        <TextBlock Text="اطلاعات هویتی و سجلی" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
+
+                                                        <UniformGrid Columns="3" Margin="0,0,0,5">
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="نام:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="نام خانوادگی:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="جنسیت:" Foreground="White" FontSize="12"/>
+                                                                <ComboBox SelectedValue="{Binding Gender}" SelectedValuePath="Content">
+                                                                    <ComboBoxItem Content="مرد"/>
+                                                                    <ComboBoxItem Content="زن"/>
+                                                                </ComboBox>
+                                                            </StackPanel>
+                                                        </UniformGrid>
+
+                                                        <UniformGrid Columns="3" Margin="0,0,0,5">
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="شماره شناسنامه:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding IdentityNumber, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="کد ملی:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding NationalCode, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="سری و سریال شناسنامه:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding IdSerial, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                        </UniformGrid>
+
+                                                        <UniformGrid Columns="2" Margin="0,0,0,5">
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="تاریخ تولد (هجری خورشیدی):" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding BirthDateSolar, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="تاریخ تولد (هجری قمری):" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding BirthDateLunar, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                        </UniformGrid>
+
+                                                        <UniformGrid Columns="3" Margin="0,0,0,5">
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="شهرستان محل تولد:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding BirthCounty, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="بخش:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding BirthDistrict, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="دهستان / روستا:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding BirthRural, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                        </UniformGrid>
+
+                                                        <UniformGrid Columns="2" Margin="0,0,0,10">
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="نام پدر:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding FatherName, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Margin="4">
+                                                                <TextBlock Text="نام مادر:" Foreground="White" FontSize="12"/>
+                                                                <TextBox Text="{Binding MotherName, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            </StackPanel>
+                                                        </UniformGrid>
+
+                                                        <Border BorderThickness="0,1,0,0" BorderBrush="#81C784" Margin="0,5,0,10"/>
+
+                                                        <!-- بخش شماره‌های تماس (بدون اسکرول و نمایش کامل) -->
+                                                        <TextBlock Text="شماره‌های تماس شخص:" FontSize="15" FontWeight="Bold" Foreground="White" Margin="0,0,0,5"/>
+                                                        <Grid Margin="0,0,0,8">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="130"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="110"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBox Grid.Column="0" Text="{Binding ElementName=MainPersonControl, Path=DataContext.NewPhoneTitle, UpdateSourceTrigger=PropertyChanged}" Tag="عنوان (همراه/پدر...)"/>
+                                                            <TextBox Grid.Column="1" Text="{Binding ElementName=MainPersonControl, Path=DataContext.NewPhoneNumber, UpdateSourceTrigger=PropertyChanged}" Tag="شماره تماس"/>
+                                                            <Button Grid.Column="2" Content="افزودن شماره" Command="{Binding ElementName=MainPersonControl, Path=DataContext.AddPhoneCommand}" Style="{StaticResource StandardBtn}" Margin="5,0"/>
+                                                        </Grid>
+
+                                                        <ItemsControl ItemsSource="{Binding PhoneNumbers}" Margin="0,0,0,10">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Background="#1B5E20" CornerRadius="5" Padding="8,5" Margin="0,3">
+                                                                        <Grid>
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="130"/>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                                <ColumnDefinition Width="100"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center" Foreground="#C8E6C9" FontSize="14" FontWeight="Bold"/>
+                                                                            <TextBlock Text="{Binding PhoneNumber}" Grid.Column="1" VerticalAlignment="Center" Foreground="#FFD54F" FontSize="15" FontWeight="Bold"/>
+                                                                            <Button Content="حذف 🗑️" Grid.Column="2" 
+                                                                                    Command="{Binding ElementName=MainPersonControl, Path=DataContext.DeletePhoneCommand}" 
+                                                                                    CommandParameter="{Binding}" 
+                                                                                    Background="#D32F2F" Style="{StaticResource StandardBtn}" Height="32"/>
+                                                                        </Grid>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+                                                </ScrollViewer>
+                                            </TabItem>
+
+                                            <!-- یادداشت‌ها (راست‌به‌چپ و تراز از بالا راست استاندارد فارسی) -->
+                                            <TabItem>
+                                                <StackPanel DataContext="{Binding SelectedPerson}" Margin="0,5">
+                                                    <TextBlock Text="یادداشت‌ها و توضیحات پرونده" FontSize="16" FontWeight="Bold" Foreground="White" Margin="0,0,0,10"/>
+                                                    <TextBlock Text="متن یادداشت‌ها:" FontSize="13" Foreground="#C8E6C9" Margin="0,0,0,8"/>
+                                                    <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" 
+                                                             AcceptsReturn="True" TextWrapping="Wrap" Height="320" FontSize="15" 
+                                                             FontFamily="Tahoma, Segoe UI"
+                                                             FlowDirection="RightToLeft" TextAlignment="Right" 
+                                                             HorizontalContentAlignment="Right" VerticalContentAlignment="Top" Padding="10"/>
+                                                </StackPanel>
+                                            </TabItem>
+
+                                            <!-- ضمایم (اتصال دقیق دکمه‌های مشاهده و حذف) -->
+                                            <TabItem>
+                                                <StackPanel DataContext="{Binding SelectedPerson}" Margin="0,5">
+                                                    <DockPanel LastChildFill="False" Margin="0,0,0,10">
+                                                        <TextBlock Text="مدارک و فایل‌های ضمیمه شده" FontSize="16" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                                                        <Button DockPanel.Dock="Left" Content="📎 آپلود فایل مدرک جدید" Command="{Binding ElementName=MainPersonControl, Path=DataContext.AddAttachmentCommand}" Style="{StaticResource StandardBtn}"/>
+                                                    </DockPanel>
+
+                                                    <DataGrid ItemsSource="{Binding Attachments}" Height="310" Margin="0,0,0,10" Background="#E8F5E9">
+                                                        <DataGrid.Columns>
+                                                            <DataGridTextColumn Header="نام فایل" Binding="{Binding FileName}" Width="*"/>
+                                                            <DataGridTemplateColumn Width="210" Header="عملیات فایل">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <Button Content="مشاهده 👁️" 
+                                                                                    Command="{Binding ElementName=MainPersonControl, Path=DataContext.OpenAttachmentCommand}" 
+                                                                                    CommandParameter="{Binding}" 
+                                                                                    Style="{StaticResource StandardBtn}" Margin="3,0"/>
+                                                                            <Button Content="حذف 🗑️" 
+                                                                                    Command="{Binding ElementName=MainPersonControl, Path=DataContext.DeleteAttachmentCommand}" 
+                                                                                    CommandParameter="{Binding}" 
+                                                                                    Background="#D32F2F" Style="{StaticResource StandardBtn}" Margin="3,0"/>
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                            </DataGridTemplateColumn>
+                                                        </DataGrid.Columns>
+                                                    </DataGrid>
+                                                </StackPanel>
+                                            </TabItem>
+                                        </TabControl>
+
+                                        <!-- ۳. دکمه‌های پایانی -->
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
+                                            <Button Content="💾 ذخیره نهایی تغییرات" Command="{Binding SavePersonCommand}" Style="{StaticResource StandardBtn}" FontWeight="Bold" Margin="0,0,10,0" Padding="15,8"/>
+                                            <Button Content="❌ حذف کامل این عضو" Command="{Binding DeletePersonCommand}" Background="#D32F2F" Style="{StaticResource StandardBtn}" FontWeight="Bold" Padding="15,8"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- تب ۶: تاریخچه -->
                     <TabItem>
                         <DataGrid ItemsSource="{Binding Histories}">
                             <DataGrid.Columns>
@@ -256,13 +528,14 @@
                         </DataGrid>
                     </TabItem>
 
+                    <!-- تب ۷: تنظیمات -->
                     <TabItem>
                         <Border Background="#2E7D32" CornerRadius="10" Padding="30" Margin="20">
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="تنظیمات نرم‌افزار و داده‌ها" Foreground="White" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
-                                <Button Content="📂 باز کردن پوشه محل ذخیره داده‌ها" Click="OpenDataFolder_Click" Style="{StaticResource StandardBtn}" FontSize="20" Margin="20,10" Width="400"/>
-                                <Button Content="📥 وارد کردن فایل قدیمی اطلاعات (JSON)" Click="ImportJson_Click" Style="{StaticResource StandardBtn}" FontSize="20" Margin="20,10" Width="400"/>
-                                <TextBlock Text="پایگاه داده به صورت خودکار در پوشه Data ذخیره می‌شود." Foreground="#C8E6C9" FontSize="16" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+                                <TextBlock Text="تنظیمات نرم‌افزار و داده‌ها" Foreground="White" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+                                <Button Content="📂 باز کردن پوشه محل ذخیره داده‌ها" Click="OpenDataFolder_Click" Style="{StaticResource StandardBtn}" FontSize="18" Margin="15,8" Width="400"/>
+                                <Button Content="📥 وارد کردن فایل قدیمی اطلاعات (JSON)" Click="ImportJson_Click" Style="{StaticResource StandardBtn}" FontSize="18" Margin="15,8" Width="400"/>
+                                <TextBlock Text="پایگاه داده و ضمیمه‌ها به صورت خودکار در پوشه Data ذخیره می‌شوند." Foreground="#C8E6C9" FontSize="15" HorizontalAlignment="Center" Margin="0,20,0,0"/>
                             </StackPanel>
                         </Border>
                     </TabItem>
@@ -270,7 +543,7 @@
             </Grid>
         </Grid>
 
-        <!-- Overlay ویرایش -->
+        <!-- Overlay ویرایش صفحات/ختم‌ها -->
         <Grid Panel.ZIndex="100" Background="#F01B5E20" Visibility="{Binding IsEditOverlayVisible, Converter={StaticResource BoolToVis}}">
             <Border Background="#2E7D32" CornerRadius="15" Width="800" Height="500" Padding="30">
                 <StackPanel Name="OverlayInputPanel">
@@ -279,13 +552,13 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
                         <TextBlock Text="از (کد/شماره):" Foreground="White" FontSize="20" VerticalAlignment="Center"/>
-                        <TextBox Name="TxtStartInput" Text="{Binding StartInput, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Name="TxtStartInput" Text="{Binding StartInput, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
 
                         <ComboBox ItemsSource="{Binding Suras}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedStartSura}" Visibility="{Binding IsSuraDropdownVisible, Converter={StaticResource BoolToVis}}" Width="150"/>
 
                         <StackPanel Orientation="Horizontal" Visibility="{Binding IsMultipleMode, Converter={StaticResource BoolToVis}}">
                             <TextBlock Text="تا (کد/شماره):" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="20,0,0,0"/>
-                            <TextBox Name="TxtEndInput" Text="{Binding EndInput, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox x:Name="TxtEndInput" Text="{Binding EndInput, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
 
                             <ComboBox ItemsSource="{Binding Suras}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEndSura}" Visibility="{Binding IsSuraDropdownVisible, Converter={StaticResource BoolToVis}}" Width="150"/>
                         </StackPanel>
@@ -293,10 +566,10 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
                         <TextBlock Text="افزایش (+):" Foreground="White" FontSize="20" VerticalAlignment="Center"/>
-                        <TextBox Name="TxtAddInput" Text="{Binding AddCountInput, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Name="TxtAddInput" Text="{Binding AddCountInput, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
 
                         <TextBlock Text="کاهش (-):" Foreground="White" FontSize="20" VerticalAlignment="Center" Margin="30,0,0,0"/>
-                        <TextBox Name="TxtSubInput" Text="{Binding SubCountInput, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Name="TxtSubInput" Text="{Binding SubCountInput, UpdateSourceTrigger=PropertyChanged}" Width="90"/>
                     </StackPanel>
 
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="#FF8A80" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5"/>
@@ -314,7 +587,7 @@
             </Border>
         </Grid>
 
-        <!-- Overlay راهنمای F1 (نمایش لیست) -->
+        <!-- Overlay راهنمای F1 -->
         <Grid Panel.ZIndex="105" Background="#C0000000" Visibility="{Binding IsHelpListVisible, Converter={StaticResource BoolToVis}}">
             <Border Background="#2E7D32" CornerRadius="12" Width="450" Height="550" Padding="20">
                 <StackPanel>

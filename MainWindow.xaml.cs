@@ -20,7 +20,8 @@ namespace QuranTracker
 
             var dbContext = new AppDbContext();
             var quranService = new QuranService(dbContext);
-            _viewModel = new MainViewModel(quranService);
+            var personService = new PersonService(dbContext);
+            _viewModel = new MainViewModel(quranService, personService);
 
             this.DataContext = _viewModel;
             _viewModel.PropertyChanged += ViewModel_PropertyChanged;
