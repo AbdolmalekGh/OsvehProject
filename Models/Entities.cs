@@ -51,14 +51,12 @@ namespace QuranTracker.Models
 
         public AppDbContext()
         {
-            // انتقال محل ذخیره به پوشه مجزا
             string baseFolder = AppDomain.CurrentDomain.BaseDirectory;
             string dataFolder = Path.Combine(baseFolder, "Data");
             Directory.CreateDirectory(dataFolder);
 
             _dbPath = Path.Combine(dataFolder, "quran_tracker.db");
 
-            // انتقال فایل قدیمی به پوشه جدید در صورت وجود
             string oldDbPath = Path.Combine(baseFolder, "quran_tracker.db");
             if (File.Exists(oldDbPath) && !File.Exists(_dbPath))
             {

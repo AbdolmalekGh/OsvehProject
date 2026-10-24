@@ -44,7 +44,6 @@ namespace QuranTracker
             {
                 var focusableElements = GetFocusableOverlayElements();
 
-                // جابجایی بین فیلدها با چپ و راست
                 if (e.Key == Key.Left || e.Key == Key.Right)
                 {
                     if (focusableElements.Count > 0)
@@ -66,7 +65,6 @@ namespace QuranTracker
                     }
                 }
 
-                // تغییر مقادیر با بالا و پایین به همراه لوپ
                 if (e.Key == Key.Up || e.Key == Key.Down)
                 {
                     if (e.OriginalSource is TextBox txt && focusableElements.Contains(txt))
@@ -76,19 +74,16 @@ namespace QuranTracker
                         {
                             val += (e.Key == Key.Up) ? 1 : -1;
 
-                            // بررسی لوپ برای سوره های جزء 30 (78 تا 114)
                             if (_viewModel.CurrentTabIndex == 2 && _viewModel.Juz30CurrentMode == Juz30Mode.Suras && (txt.Name == "TxtStartInput" || txt.Name == "TxtEndInput"))
                             {
                                 if (val > 114) val = 78;
                                 if (val < 78) val = 114;
                             }
-                            // بررسی لوپ برای صفحات جزء 30 (582 تا 604)
                             else if (_viewModel.CurrentTabIndex == 2 && _viewModel.Juz30CurrentMode == Juz30Mode.Pages && (txt.Name == "TxtStartInput" || txt.Name == "TxtEndInput"))
                             {
                                 if (val > 604) val = 582;
                                 if (val < 582) val = 604;
                             }
-                            // برای سایر فیلدها اجازه زیر صفر نمیدهیم
                             else
                             {
                                 if (val < 0) val = 0;
@@ -103,7 +98,6 @@ namespace QuranTracker
                 }
             }
 
-            // شورت‌کات اعداد 1 تا 9 در صفحه ختم‌ها
             if (_viewModel.IsMainViewEnabled && _viewModel.CurrentTabIndex == 3)
             {
                 int inputNum = -1;
@@ -145,10 +139,11 @@ namespace QuranTracker
             base.OnPreviewTextInput(e);
         }
 
-        // --- دکمه‌های مربوط به صفحه تنظیمات ---
         private void OpenDataFolder_Click(object sender, RoutedEventArgs e)
         {
             string path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+            if (!System.IO.Directory.Exists(path)) System.IO.Directory.CreateDirectory(path);
+
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
             {
                 FileName = path,
@@ -161,14 +156,14 @@ namespace QuranTracker
         {
             var dlg = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "انتخاب فایل ذخیره قبلی",
+                Title = "انتخاب فایل ذخیره قبلی (JSON)",
                 Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
             };
 
             if (dlg.ShowDialog() == true)
             {
                 string resultMessage = _viewModel._quranService.ImportOldDataFromJson(dlg.FileName);
-                MessageBox.Show(resultMessage, "نتیجه بازیابی", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(resultMessage, "نتیجه بازیابی اطلاعات", MessageBoxButton.OK, MessageBoxImage.Information);
                 _viewModel.LoadData();
             }
         }

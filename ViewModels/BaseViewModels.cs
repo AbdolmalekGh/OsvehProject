@@ -5,7 +5,6 @@ using System.Windows.Input;
 
 namespace QuranTracker.ViewModels
 {
-
     public class RelayCommand : ICommand
     {
         private readonly Action _execute;

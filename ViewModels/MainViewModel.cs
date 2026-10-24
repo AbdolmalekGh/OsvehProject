@@ -114,7 +114,7 @@ namespace QuranTracker.ViewModels
                 OnPropertyChanged(nameof(IsMainViewEnabled));
                 OnPropertyChanged(nameof(IsEditOverlayVisible));
                 OnPropertyChanged(nameof(IsConfirmOverlayVisible));
-                if (value != OverlayState.Edit) IsHelpListVisible = false; // بستن لیست راهنما هنگام خروج
+                if (value != OverlayState.Edit) IsHelpListVisible = false;
             }
         }
 
@@ -122,7 +122,6 @@ namespace QuranTracker.ViewModels
         public bool IsEditOverlayVisible => CurrentOverlay == OverlayState.Edit;
         public bool IsConfirmOverlayVisible => CurrentOverlay == OverlayState.Confirm;
 
-        // متغیرهای لیست راهنمای F1
         private bool _isHelpListVisible;
         public bool IsHelpListVisible { get => _isHelpListVisible; set { _isHelpListVisible = value; OnPropertyChanged(); } }
 
@@ -189,7 +188,7 @@ namespace QuranTracker.ViewModels
         private void UpdateCurrentItemCount()
         {
             if (int.TryParse(StartInput, out int id))
-                CurrentItemCount = _quranService.GetItemCurrentCount(_currentTab, id);
+                CurrentItemCount = _quranService.GetItemCurrentCount(_currentTab, Juz30CurrentMode, id);
             else
                 CurrentItemCount = 0;
         }
@@ -215,7 +214,7 @@ namespace QuranTracker.ViewModels
         public RelayCommand F1KeyCommand { get; }
         public RelayCommandWithParameter ChangeTabCommand { get; }
         public RelayCommand OpenEditMultipleCommand { get; }
-        public RelayCommand OpenEditSingleCommand { get; }
+        public RelayCommandWithParameter OpenEditSingleCommand { get; }
         public RelayCommand ToggleJuz30ModeCommand { get; }
         public RelayCommand CycleSortCommand { get; }
         public RelayCommand EnterKeyCommand { get; }
@@ -228,9 +227,10 @@ namespace QuranTracker.ViewModels
             SelectedSortOption = SortOptions[0];
 
             ChangeTabCommand = new RelayCommandWithParameter(p => { if (IsMainViewEnabled) CurrentTabIndex = int.Parse(p.ToString()); });
-            OpenEditMultipleCommand = new RelayCommand(() => OpenEdit(EditMode.Multiple));
 
-            // F1: اگر در حال ویرایش هستیم لیست راهنما را باز کن، در غیر اینصورت تب 0
+            OpenEditMultipleCommand = new RelayCommand(() => OpenEdit(EditMode.Multiple));
+            OpenEditSingleCommand = new RelayCommandWithParameter(param => OpenEdit(EditMode.Single, param != null && int.TryParse(param.ToString(), out int id) ? id : null));
+
             F1KeyCommand = new RelayCommand(() =>
             {
                 if (CurrentOverlay == OverlayState.Edit)
@@ -358,24 +358,59 @@ namespace QuranTracker.ViewModels
             else if (param is int id) OpenEdit(EditMode.Single, id);
         }
 
+        private string GetTargetDescription(int start, int end)
+        {
+            if (CurrentEditMode == EditMode.Multiple)
+            {
+                return _currentTab switch
+                {
+                    AppTab.Pages => $"صفحات {start} تا {end}",
+                    AppTab.Juzs => $"جزءهای {start} تا {end}",
+                    AppTab.Juz30 => _juz30CurrentMode == Juz30Mode.Suras ? $"سوره‌های {start} تا {end}" : $"صفحات {start} تا {end}",
+                    AppTab.Khatms => $"ختم‌های {start} تا {end}",
+                    _ => $"از کد {start} تا {end}"
+                };
+            }
+            else
+            {
+                return _currentTab switch
+                {
+                    AppTab.Pages => $"صفحه {start}",
+                    AppTab.Juzs => $"جزء {start}",
+                    AppTab.Juz30 => _juz30CurrentMode == Juz30Mode.Suras
+                        ? $"سوره {Suras?.FirstOrDefault(s => s.SuraNumber == start)?.Name ?? start.ToString()} (کد {start})"
+                        : $"صفحه {start}",
+                    AppTab.Khatms => $"ختم {KhatmRecords?.FirstOrDefault(k => k.Id == start)?.Name ?? start.ToString()} (شناسه {start})",
+                    _ => $"شناسه {start}"
+                };
+            }
+        }
+
         private void ExecuteEnter()
         {
             if (CurrentOverlay == OverlayState.Edit)
             {
                 if (ValidateInputs(out int start, out int end, out int delta))
                 {
-                    string target = CurrentEditMode == EditMode.Multiple ? $"از شماره/کد {start} تا {end}" : $"شماره/کد {start}";
+                    string targetDesc = GetTargetDescription(start, end);
                     string action = delta > 0 ? $"افزایش {delta} تکرار" : $"کاهش {Math.Abs(delta)} تکرار";
 
-                    ConfirmationMessage = $"آیا تغییر زیر را تایید می‌کنید؟\n\n{action} برای {target} در {CurrentTabName}";
+                    ConfirmationMessage = $"آیا تغییر زیر را تایید می‌کنید؟\n\n{action} برای {targetDesc}";
                     ErrorMessage = "";
                     CurrentOverlay = OverlayState.Confirm;
                 }
             }
             else if (CurrentOverlay == OverlayState.Confirm)
             {
-                ApplyChanges();
-                CurrentOverlay = OverlayState.None;
+                if (ApplyChanges())
+                {
+                    CurrentOverlay = OverlayState.None;
+                }
+                else
+                {
+                    CurrentOverlay = OverlayState.Edit;
+                    ErrorMessage = "خطا: مقدار تکرار نمی‌تواند منفی شود.";
+                }
             }
         }
 
@@ -405,7 +440,6 @@ namespace QuranTracker.ViewModels
             if (!string.IsNullOrEmpty(AddCountInput)) int.TryParse(AddCountInput, out add);
             if (!string.IsNullOrEmpty(SubCountInput)) int.TryParse(SubCountInput, out sub);
 
-            // منطق ماشین حساب داخلی (برآیند افزایش و کاهش)
             delta = add - sub;
             if (delta == 0)
             {
@@ -416,24 +450,38 @@ namespace QuranTracker.ViewModels
             return true;
         }
 
-        private void ApplyChanges()
+        private bool ApplyChanges()
         {
             ValidateInputs(out int start, out int end, out int delta);
             bool success = true;
 
             switch (_currentTab)
             {
-                case AppTab.Pages: success = _quranService.UpdatePageRange(start, end, delta, "ویرایش صفحات"); break;
-                case AppTab.Juzs: success = _quranService.UpdateJuzRange(start, end, delta, "ویرایش اجزا"); break;
-                case AppTab.Juz30:
-                    if (_juz30CurrentMode == Juz30Mode.Suras) success = _quranService.UpdateSuraRange(start, end, delta, "ویرایش سوره‌های جزء ۳۰");
-                    else success = _quranService.UpdatePageRange(start, end, delta, "ویرایش صفحات جزء ۳۰");
+                case AppTab.Pages:
+                    success = _quranService.UpdatePageRange(start, end, delta, "ویرایش صفحات");
                     break;
-                case AppTab.Khatms: success = _quranService.UpdateKhatm(start, delta); break;
+                case AppTab.Juzs:
+                    success = _quranService.UpdateJuzRange(start, end, delta, "ویرایش اجزا");
+                    break;
+                case AppTab.Juz30:
+                    if (_juz30CurrentMode == Juz30Mode.Suras)
+                        success = _quranService.UpdateSuraRange(start, end, delta, "ویرایش سوره‌های جزء ۳۰");
+                    else
+                        success = _quranService.UpdatePageRange(start, end, delta, "ویرایش صفحات جزء ۳۰");
+                    break;
+                case AppTab.Khatms:
+                    if (CurrentEditMode == EditMode.Multiple)
+                        success = _quranService.UpdateKhatmRange(start, end, delta, "ویرایش متوالی ختم‌ها");
+                    else
+                        success = _quranService.UpdateKhatmRange(start, start, delta, "ویرایش ختم");
+                    break;
             }
 
-            if (!success) ErrorMessage = "خطا: مقدار تکرار نمی‌تواند منفی شود.";
-            else LoadData();
+            if (success)
+            {
+                LoadData();
+            }
+            return success;
         }
     }
 }

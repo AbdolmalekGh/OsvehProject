@@ -37,7 +37,6 @@ namespace QuranTracker.Helpers
         }
     }
 
-    // اضافه شدن کلاس پایه دستورات برای حل خطای RelayCommand
     public class RelayCommand : ICommand
     {
         private readonly Action _execute;
@@ -59,7 +58,6 @@ namespace QuranTracker.Helpers
         }
     }
 
-    // اضافه شدن کلاس پایه دستورات پارامتردار برای حل خطای RelayCommandWithParameter
     public class RelayCommandWithParameter : ICommand
     {
         private readonly Action<object> _execute;

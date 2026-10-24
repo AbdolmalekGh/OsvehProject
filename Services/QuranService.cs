@@ -66,14 +66,27 @@ namespace QuranTracker.Services
                 });
             }
             _db.SaveChanges();
+            SyncKhatm1();
+        }
+
+        private void SyncKhatm1()
+        {
+            var khatm1 = _db.KhatmRecords.Find(1);
+            if (khatm1 != null && _db.Pages.Any())
+            {
+                khatm1.Count = _db.Pages.Min(p => p.ReadCount);
+            }
         }
 
         public bool UpdatePageRange(int start, int end, int delta, string reason)
         {
             var pages = _db.Pages.Where(p => p.PageNumber >= start && p.PageNumber <= end).ToList();
+            if (!pages.Any()) return false;
             if (delta < 0 && pages.Any(p => p.ReadCount + delta < 0)) return false;
 
             foreach (var page in pages) page.ReadCount += delta;
+            SyncKhatm1();
+
             LogHistory($"{reason} (صفحات {start} تا {end}: {delta:+#;-#;0})");
             _db.SaveChanges();
             return true;
@@ -89,6 +102,7 @@ namespace QuranTracker.Services
         public bool UpdateSuraRange(int start, int end, int delta, string reason)
         {
             var suras = _db.Suras.Where(s => s.SuraNumber >= start && s.SuraNumber <= end).ToList();
+            if (!suras.Any()) return false;
             if (delta < 0 && suras.Any(s => s.ReadCount + delta < 0)) return false;
 
             foreach (var sura in suras) sura.ReadCount += delta;
@@ -101,31 +115,38 @@ namespace QuranTracker.Services
         private void CheckAndPromoteSuraToPages()
         {
             var suras = _db.Suras.ToList();
+            if (!suras.Any()) return;
             int minSuraRead = suras.Min(s => s.ReadCount);
             if (minSuraRead > 0)
             {
                 foreach (var sura in suras) sura.ReadCount -= minSuraRead;
                 var juz30Pages = _db.Pages.Where(p => p.IsJuz30).ToList();
                 foreach (var page in juz30Pages) page.ReadCount += minSuraRead;
+
+                SyncKhatm1();
                 LogHistory($"انتقال {minSuraRead} تکرار کامل از سوره‌ها به صفحات جزء ۳۰");
                 _db.SaveChanges();
             }
         }
 
-        public bool UpdateKhatm(int id, int delta)
+        public bool UpdateKhatmRange(int start, int end, int delta, string reason)
         {
-            var record = _db.KhatmRecords.FirstOrDefault(k => k.Id == id);
-            if (record == null || (delta < 0 && record.Count + delta < 0)) return false;
+            var records = _db.KhatmRecords.Where(k => k.Id >= start && k.Id <= end).ToList();
+            if (!records.Any()) return false;
+            if (delta < 0 && records.Any(k => k.Count + delta < 0)) return false;
 
-            // فقط در صورتی که آیدی 1 (ختم کل قرآن) باشد روی صفحات تأثیر می‌گذارد
-            if (id == 1)
+            foreach (var record in records)
             {
-                bool pageUpdateSuccess = UpdatePageRange(1, 604, delta, "اعمال ختم کامل قرآن");
-                if (!pageUpdateSuccess) return false;
+                if (record.Id == 1)
+                {
+                    bool pageUpdateSuccess = UpdatePageRange(1, 604, delta, "اعمال ختم کامل قرآن");
+                    if (!pageUpdateSuccess) return false;
+                    continue; // جلوگیری از اضافه شدن مضاعف دلتا روی ختم کل
+                }
+                record.Count += delta;
             }
 
-            record.Count += delta;
-            LogHistory($"ویرایش {record.Name} ({delta:+#;-#;0})");
+            LogHistory($"{reason} (شناسه‌های {start} تا {end}: {delta:+#;-#;0})");
             _db.SaveChanges();
             return true;
         }
@@ -134,21 +155,40 @@ namespace QuranTracker.Services
         {
             var (start, end) = JuzPageMapper.GetPageRangeForJuz(juzNumber);
             var pages = _db.Pages.Where(p => p.PageNumber >= start && p.PageNumber <= end).ToList();
+            if (!pages.Any()) return (0, 0);
             return (pages.Min(p => p.ReadCount), pages.Max(p => p.ReadCount));
         }
 
-        public int GetItemCurrentCount(AppTab tab, int id)
+        public int GetItemCurrentCount(AppTab tab, Juz30Mode juz30Mode, int id)
         {
             return tab switch
             {
                 AppTab.Pages => _db.Pages.FirstOrDefault(p => p.PageNumber == id)?.ReadCount ?? 0,
-                AppTab.Juz30 => _db.Suras.FirstOrDefault(s => s.SuraNumber == id)?.ReadCount ?? 0,
+                AppTab.Juzs => GetJuzReadStats(id).Min,
+                AppTab.Juz30 => juz30Mode == Juz30Mode.Suras
+                    ? _db.Suras.FirstOrDefault(s => s.SuraNumber == id)?.ReadCount ?? 0
+                    : _db.Pages.FirstOrDefault(p => p.PageNumber == id)?.ReadCount ?? 0,
                 AppTab.Khatms => _db.KhatmRecords.FirstOrDefault(k => k.Id == id)?.Count ?? 0,
                 _ => 0
             };
         }
 
-        // فیچر وارد کردن اطلاعات قبلی
+        private static JsonElement? GetPropertyCaseInsensitive(JsonElement element, params string[] names)
+        {
+            if (element.ValueKind != JsonValueKind.Object) return null;
+            foreach (var prop in element.EnumerateObject())
+            {
+                foreach (var name in names)
+                {
+                    if (string.Equals(prop.Name, name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return prop.Value;
+                    }
+                }
+            }
+            return null;
+        }
+
         public string ImportOldDataFromJson(string path)
         {
             try
@@ -157,45 +197,131 @@ namespace QuranTracker.Services
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
 
-                if (root.TryGetProperty("Pages", out var pagesEl))
+                int updatedPages = 0;
+                int updatedSuras = 0;
+                int updatedKhatms = 0;
+                int importedHistory = 0;
+
+                // ۱. پردازش صفحات قرآن (Case-Insensitive)
+                var pagesProp = GetPropertyCaseInsensitive(root, "pageReadCounts", "Pages", "pages", "pageList", "quranPages");
+                if (pagesProp.HasValue && pagesProp.Value.ValueKind == JsonValueKind.Array)
                 {
-                    foreach (var p in pagesEl.EnumerateArray())
+                    foreach (var p in pagesProp.Value.EnumerateArray())
                     {
-                        if (p.TryGetProperty("PageNumber", out var numEl) && p.TryGetProperty("ReadCount", out var countEl))
+                        var numEl = GetPropertyCaseInsensitive(p, "PageNumber", "pageNumber", "number", "id", "page");
+                        var countEl = GetPropertyCaseInsensitive(p, "PageReadCounts", "pageReadCounts", "ReadCount", "readCount", "count", "value");
+
+                        if (numEl.HasValue && numEl.Value.ValueKind == JsonValueKind.Number &&
+                            countEl.HasValue && countEl.Value.ValueKind == JsonValueKind.Number)
                         {
-                            var page = _db.Pages.Find(numEl.GetInt32());
-                            if (page != null) page.ReadCount = countEl.GetInt32();
+                            var page = _db.Pages.Find(numEl.Value.GetInt32());
+                            if (page != null) { page.ReadCount = countEl.Value.GetInt32(); updatedPages++; }
                         }
                     }
                 }
-                if (root.TryGetProperty("Suras", out var surasEl))
+
+                // ۲. پردازش صفحات جزء ۳۰
+                var juz30Prop = GetPropertyCaseInsensitive(root, "chapter30Pages", "Chapter30Pages", "juz30Pages", "juz30");
+                if (juz30Prop.HasValue && juz30Prop.Value.ValueKind == JsonValueKind.Array)
                 {
-                    foreach (var s in surasEl.EnumerateArray())
+                    foreach (var p in juz30Prop.Value.EnumerateArray())
                     {
-                        if (s.TryGetProperty("SuraNumber", out var numEl) && s.TryGetProperty("ReadCount", out var countEl))
+                        var numEl = GetPropertyCaseInsensitive(p, "PageNumber", "pageNumber", "number", "id");
+                        var countEl = GetPropertyCaseInsensitive(p, "PageReadCounts", "pageReadCounts", "ReadCount", "readCount", "count");
+
+                        if (numEl.HasValue && numEl.Value.ValueKind == JsonValueKind.Number &&
+                            countEl.HasValue && countEl.Value.ValueKind == JsonValueKind.Number)
                         {
-                            var sura = _db.Suras.Find(numEl.GetInt32());
-                            if (sura != null) sura.ReadCount = countEl.GetInt32();
+                            var page = _db.Pages.Find(numEl.Value.GetInt32());
+                            if (page != null) { page.ReadCount = countEl.Value.GetInt32(); updatedPages++; }
                         }
                     }
                 }
-                if (root.TryGetProperty("Khatms", out var khatmsEl))
+
+                // ۳. پردازش سوره‌های جزء ۳۰
+                var suraProp = GetPropertyCaseInsensitive(root, "sura", "Suras", "suras", "Sura", "suraList", "suraReadCounts");
+                if (suraProp.HasValue && suraProp.Value.ValueKind == JsonValueKind.Array)
                 {
-                    foreach (var k in khatmsEl.EnumerateArray())
+                    foreach (var s in suraProp.Value.EnumerateArray())
                     {
-                        if (k.TryGetProperty("Id", out var idEl) && k.TryGetProperty("Count", out var countEl))
+                        var numEl = GetPropertyCaseInsensitive(s, "SuraNumber", "suraNumber", "number", "id");
+                        var countEl = GetPropertyCaseInsensitive(s, "ReadCount", "readCount", "SuraReadCounts", "suraReadCounts", "count");
+
+                        if (numEl.HasValue && numEl.Value.ValueKind == JsonValueKind.Number &&
+                            countEl.HasValue && countEl.Value.ValueKind == JsonValueKind.Number)
                         {
-                            var khatm = _db.KhatmRecords.Find(idEl.GetInt32());
-                            if (khatm != null) khatm.Count = countEl.GetInt32();
+                            int rawNum = numEl.Value.GetInt32();
+                            int dbSuraNum = (rawNum >= 1 && rawNum <= 37) ? rawNum + 77 : rawNum;
+                            var sura = _db.Suras.Find(dbSuraNum);
+                            if (sura != null) { sura.ReadCount = countEl.Value.GetInt32(); updatedSuras++; }
                         }
                     }
                 }
+
+                // ۴. پردازش اذکار و ختم‌ها
+                var tahlilProp = GetPropertyCaseInsensitive(root, "KhatmTahlil", "khatmTahlil");
+                if (tahlilProp.HasValue && tahlilProp.Value.ValueKind == JsonValueKind.Number)
+                {
+                    var khatm3 = _db.KhatmRecords.Find(3);
+                    if (khatm3 != null) { khatm3.Count = tahlilProp.Value.GetInt32(); updatedKhatms++; }
+                }
+
+                var khatmsProp = GetPropertyCaseInsensitive(root, "Khatms", "khatms", "khatmRecords", "khatm", "khatmList");
+                if (khatmsProp.HasValue && khatmsProp.Value.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var k in khatmsProp.Value.EnumerateArray())
+                    {
+                        var idEl = GetPropertyCaseInsensitive(k, "Id", "id", "khatmId");
+                        var countEl = GetPropertyCaseInsensitive(k, "Count", "count", "value");
+
+                        if (idEl.HasValue && idEl.Value.ValueKind == JsonValueKind.Number &&
+                            countEl.HasValue && countEl.Value.ValueKind == JsonValueKind.Number)
+                        {
+                            var khatm = _db.KhatmRecords.Find(idEl.Value.GetInt32());
+                            if (khatm != null) { khatm.Count = countEl.Value.GetInt32(); updatedKhatms++; }
+                        }
+                    }
+                }
+
+                // ۵. پردازش تاریخچه
+                var historyProp = GetPropertyCaseInsensitive(root, "historyList", "HistoryList", "history", "Histories", "historyLogs");
+                if (historyProp.HasValue && historyProp.Value.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var h in historyProp.Value.EnumerateArray())
+                    {
+                        var infoEl = GetPropertyCaseInsensitive(h, "Information", "information", "desc", "description", "actionDescription");
+                        var dateEl = GetPropertyCaseInsensitive(h, "date", "Date", "persianDate", "PersianDate");
+
+                        string desc = infoEl.HasValue && infoEl.Value.ValueKind == JsonValueKind.String ? infoEl.Value.GetString() : "";
+                        string dateStr = dateEl.HasValue && dateEl.Value.ValueKind == JsonValueKind.String ? dateEl.Value.GetString() : "";
+
+                        if (!string.IsNullOrEmpty(desc))
+                        {
+                            _db.HistoryLogs.Add(new HistoryLog
+                            {
+                                ActionDescription = desc,
+                                PersianDate = dateStr,
+                                CreatedAtUtc = DateTime.UtcNow
+                            });
+                            importedHistory++;
+                        }
+                    }
+                }
+
+                CheckAndPromoteSuraToPages();
+                SyncKhatm1();
                 _db.SaveChanges();
-                return "اطلاعات با موفقیت وارد و جایگزین سیستم شد.";
+
+                if (updatedPages == 0 && updatedSuras == 0 && updatedKhatms == 0 && importedHistory == 0)
+                {
+                    return "فایل انتخاب‌شده حاوی ساختار اطلاعاتی شناخته‌شده‌ای نبود.";
+                }
+
+                return $"اطلاعات با موفقیت وارد گردید:\n\n• صفحات بروز شده: {updatedPages}\n• سوره‌ها: {updatedSuras}\n• ختم‌ها: {updatedKhatms}\n• رکوردهای تاریخچه: {importedHistory}";
             }
             catch (Exception ex)
             {
-                return $"خطا در خواندن فایل: {ex.Message}";
+                return $"خطا در فراخوانی فایل: {ex.Message}";
             }
         }
 
